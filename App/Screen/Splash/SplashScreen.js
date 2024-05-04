@@ -11,7 +11,8 @@ function SplashScreen({ navigation }) {
                 container: {
                     position: "absolute",
                     bottom: 50,
-                    paddingHorizontal: 20
+                    zIndex: 1,
+                    width: "100%"
                 },
             }),
         []
@@ -24,12 +25,16 @@ function SplashScreen({ navigation }) {
     });
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={[{ flex: 1 }]}>
             <Image
-                style={{ objectFit: "cover", width: "auto", height: "100%" }}
+                style={{ zIndex: 0, objectFit: "cover", width: "auto", height: "100%" }}
                 source={require("../../../assets/splash.jpg")}
             />
-            <View style={styles.container}>
+            <View style={[styles.container, theme.padding]}>
+                <Image
+                    style={{ alignContent: 'center', objectFit: "contain", width: "auto", height: 300 }}
+                    source={require("../../../assets/eazy-camp.png")}
+                />
                 <Text style={[typography.header, { color: theme.colors.primary }]}>Eazy Camp</Text>
                 <Text style={[typography.header, { color: theme.colors.primary }]}>Sewa Sekarang, Ndaki Kemudian</Text>
             </View>
