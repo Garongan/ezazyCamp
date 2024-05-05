@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Keyboard, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
 import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
@@ -18,18 +18,23 @@ const LoginScreen = () => {
     const {
         control,
         handleSubmit,
-        formState: { errors, disabled },
+        formState: { errors, isValid },
         clearErrors,
         reset,
     } = useForm({
         mode: "onTouched",
         resolver: zodResolver(schema),
+        defaultValues: {
+            username: "",
+            password: "",
+        },
     });
     const passwordInputRef = useRef();
 
     const onSubmit = (data) => {
         Alert.alert("Data", JSON.stringify(data));
     };
+
     return (
         <View
             style={[
@@ -60,10 +65,10 @@ const LoginScreen = () => {
                     }}
                 >
                     <Ionicons
-                        style={{ marginHorizontal: 10, color: theme.colors.text }}
+                        style={{ marginHorizontal: 10 }}
                         name="person-outline"
                         size={24}
-                        color="black"
+                        color={theme.colors.text}
                     />
                     <Controller
                         control={control}
@@ -82,7 +87,7 @@ const LoginScreen = () => {
                         )}
                     />
                 </View>
-                {errors.username && <Text style={{ color: theme.colors.error }}>{errors.username.message}</Text>}
+                {errors.username && <Text style={{ color: theme.colors.text }}>{errors.username.message}</Text>}
             </View>
             <View style={{ marginBottom: 10 }}>
                 <Text style={{ color: theme.colors.text }}>Password</Text>
@@ -97,12 +102,7 @@ const LoginScreen = () => {
                         width: "100%",
                     }}
                 >
-                    <Ionicons
-                        style={{ marginHorizontal: 10, color: theme.colors.text }}
-                        name="key-outline"
-                        size={24}
-                        color="black"
-                    />
+                    <Ionicons style={{ marginHorizontal: 10 }} name="key-outline" size={24} color={theme.colors.text} />
                     <Controller
                         control={control}
                         name="password"
@@ -110,14 +110,13 @@ const LoginScreen = () => {
                             <TextInput
                                 ref={passwordInputRef}
                                 style={{ flex: 1, height: 36, padding: 8, color: theme.colors.text }}
-                                returnKeyType="send"
                                 secureTextEntry={showPassword}
                                 placeholder="******"
                                 placeholderTextColor={theme.colors.text}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
                                 value={value}
-                                onSubmitEditing={handleSubmit(onSubmit)}
+                                onSubmitEditing={Keyboard.dismiss}
                             />
                         )}
                     />
@@ -129,22 +128,23 @@ const LoginScreen = () => {
                         color="black"
                     />
                 </View>
-                {errors.password && <Text style={{ color: theme.colors.error }}>{errors.password.message}</Text>}
+                {errors.password && <Text style={{ color: theme.colors.text }}>{errors.password.message}</Text>}
             </View>
             <View style={{ width: "100%" }}>
                 <TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
-                    disabled={!disabled}
+                    disabled={!isValid}
                     style={[
                         {
                             padding: 10,
-                            backgroundColor: theme.colors.secondary,
+                            backgroundColor: theme.colors.primary,
                             borderRadius: borders.radiusSmall,
                         },
                         theme.shadow,
+                        !isValid ? { opacity: 0.5 } : { opacity: 1 },
                     ]}
                 >
-                    <Text style={[typography.body, { color: theme.colors.primary, textAlign: "center" }]}>
+                    <Text style={[typography.body, { color: "#fff8ee", textAlign: "center" }]}>
                         Sudah Punya Akun? Masuk
                     </Text>
                 </TouchableOpacity>

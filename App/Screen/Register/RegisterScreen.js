@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Keyboard, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
 import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
@@ -19,19 +19,28 @@ const schema = z.object({
         .min(1, { message: "Username Kamu Tidak Boleh Kosong" })
         .refine((value) => !/\s/.test(value), { message: "Username Kamu Tidak Boleh Mengandung Spasi" }),
     password: z.string().min(6, { message: "Password Kamu Minimal 6 Karakter" }),
+    isCheck: z.boolean().refine((value) => value === false, { message: "Kamu Harus Menyetujui Syarat dan Ketentuan" }),
 });
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const [showPassword, setShowPassword] = useState(true);
+    const [isCheck, setIsCheck] = useState(false);
     const {
         control,
         handleSubmit,
-        formState: { errors, disabled },
+        formState: { errors, isValid },
         clearErrors,
         reset,
     } = useForm({
         mode: "onTouched",
         resolver: zodResolver(schema),
+        defaultValues: {
+            name: "",
+            phone: "",
+            username: "",
+            password: "",
+            isCheck: false,
+        },
     });
     const phoneNumberRef = useRef();
     const usernameRef = useRef();
@@ -40,6 +49,7 @@ const RegisterScreen = () => {
     const onSubmit = (data) => {
         Alert.alert("Data", JSON.stringify(data));
     };
+
     return (
         <View
             style={[
@@ -70,10 +80,10 @@ const RegisterScreen = () => {
                     }}
                 >
                     <Ionicons
-                        style={{ marginHorizontal: 10, color: theme.colors.text }}
+                        style={{ marginHorizontal: 10 }}
                         name="glasses-outline"
                         size={24}
-                        color="black"
+                        color={theme.colors.text}
                     />
                     <Controller
                         control={control}
@@ -92,7 +102,7 @@ const RegisterScreen = () => {
                         )}
                     />
                 </View>
-                {errors.name && <Text style={{ color: theme.colors.error }}>{errors.name.message}</Text>}
+                {errors.name && <Text style={{ color: theme.colors.danger }}>{errors.name.message}</Text>}
             </View>
             <View style={{ marginBottom: 10 }}>
                 <Text style={{ color: theme.colors.text }}>Phone Number</Text>
@@ -108,10 +118,10 @@ const RegisterScreen = () => {
                     }}
                 >
                     <Ionicons
-                        style={{ marginHorizontal: 10, color: theme.colors.text }}
+                        style={{ marginHorizontal: 10 }}
                         name="logo-whatsapp"
                         size={24}
-                        color="black"
+                        color={theme.colors.text}
                     />
                     <Controller
                         control={control}
@@ -131,7 +141,7 @@ const RegisterScreen = () => {
                         )}
                     />
                 </View>
-                {errors.phone && <Text style={{ color: theme.colors.error }}>{errors.phone.message}</Text>}
+                {errors.phone && <Text style={{ color: theme.colors.danger }}>{errors.phone.message}</Text>}
             </View>
             <View style={{ marginBottom: 10 }}>
                 <Text style={{ color: theme.colors.text }}>Username</Text>
@@ -147,10 +157,10 @@ const RegisterScreen = () => {
                     }}
                 >
                     <Ionicons
-                        style={{ marginHorizontal: 10, color: theme.colors.text }}
+                        style={{ marginHorizontal: 10 }}
                         name="person-outline"
                         size={24}
-                        color="black"
+                        color={theme.colors.text}
                     />
                     <Controller
                         control={control}
@@ -170,7 +180,7 @@ const RegisterScreen = () => {
                         )}
                     />
                 </View>
-                {errors.username && <Text style={{ color: theme.colors.error }}>{errors.username.message}</Text>}
+                {errors.username && <Text style={{ color: theme.colors.danger }}>{errors.username.message}</Text>}
             </View>
             <View style={{ marginBottom: 10 }}>
                 <Text style={{ color: theme.colors.text }}>Password</Text>
@@ -185,12 +195,7 @@ const RegisterScreen = () => {
                         width: "100%",
                     }}
                 >
-                    <Ionicons
-                        style={{ marginHorizontal: 10, color: theme.colors.text }}
-                        name="key-outline"
-                        size={24}
-                        color="black"
-                    />
+                    <Ionicons style={{ marginHorizontal: 10 }} name="key-outline" size={24} color={theme.colors.text} />
                     <Controller
                         control={control}
                         name="password"
@@ -198,7 +203,6 @@ const RegisterScreen = () => {
                             <TextInput
                                 ref={passwordInputRef}
                                 style={{ flex: 1, height: 36, padding: 8, color: theme.colors.text }}
-                                returnKeyType="send"
                                 secureTextEntry={showPassword}
                                 placeholder="******"
                                 placeholderTextColor={theme.colors.text}
@@ -206,7 +210,7 @@ const RegisterScreen = () => {
                                 onBlur={onBlur}
                                 value={value}
                                 showSoftInputOnFocus={false}
-                                onSubmitEditing={handleSubmit(onSubmit)}
+                                onSubmitEditing={Keyboard.dismiss}
                             />
                         )}
                     />
@@ -218,20 +222,46 @@ const RegisterScreen = () => {
                         color="black"
                     />
                 </View>
-                {errors.password && <Text style={{ color: theme.colors.error }}>{errors.password.message}</Text>}
+                {errors.password && <Text style={{ color: theme.colors.danger }}>{errors.password.message}</Text>}
             </View>
+            <Text style={{ textAlign: "center", marginBottom: 10, color: theme.colors.text }}>
+                Untuk menggunakan aplikasi EazyCamp, tolong baca dan setuju dengan{" "}
+                <Text style={{ textDecorationLine: "underline" }} onPress={() => navigation.navigate("Terms")}>
+                    Syarat dan Ketentuan
+                </Text>
+            </Text>
+            <TouchableOpacity
+                style={{
+                    marginBottom: 15,
+                    flexDirection: "row",
+                    padding: 10,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: theme.colors.info,
+                    borderRadius: borders.radiusSmall,
+                    width: "100%",
+                }}
+                onPress={() => setIsCheck(!isCheck)}
+            >
+                <MaterialCommunityIcons
+                    style={{ marginHorizontal: 10 }}
+                    name={isCheck ? "checkbox-outline" : "checkbox-blank-outline"}
+                    size={24}
+                    color={theme.colors.text}
+                />
+                <Text style={{ color: theme.colors.text }}>Saya Menyetujui Syarat dan Ketentuan dari EazyCamp</Text>
+            </TouchableOpacity>
             <View style={{ width: "100%" }}>
                 <TouchableOpacity
                     onPress={handleSubmit(onSubmit)}
-                    disabled={!disabled}
+                    disabled={!isValid || !isCheck}
                     style={[
-                        { padding: 10, backgroundColor: theme.colors.secondary, borderRadius: borders.radiusSmall },
+                        { padding: 10, backgroundColor: theme.colors.primary, borderRadius: borders.radiusSmall },
                         theme.shadow,
+                        !isValid || !isCheck ? { opacity: 0.5 } : { opacity: 1 },
                     ]}
                 >
-                    <Text style={[typography.body, { color: theme.colors.primary, textAlign: "center" }]}>
-                        Register User
-                    </Text>
+                    <Text style={[typography.body, { color: "#fff8ee", textAlign: "center" }]}>Register User</Text>
                 </TouchableOpacity>
             </View>
         </View>

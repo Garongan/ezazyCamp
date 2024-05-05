@@ -9,6 +9,7 @@ import { StatusBar } from "react-native";
 import LoginScreen from "../Screen/Login/LoginScreen";
 import RegisterScreen from "../Screen/Register/RegisterScreen";
 import RegisterGuideScreen from "../Screen/Register/RegisterGuideScreen";
+import TermsScreen from "../Screen/Terms/TermsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -53,7 +54,8 @@ function StackNavigation() {
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="RegisterGuide" component={RegisterGuideScreen} />
+            {/* <Stack.Screen name="RegisterGuide" component={RegisterGuideScreen} /> */}
+            <Stack.Screen name="Terms" component={TermsScreen} />
             {/* <Stack.Screen name="TabHome" component={TabNavigation} />
             <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
             <Stack.Screen name="Cart" component={CartScreen} /> */}

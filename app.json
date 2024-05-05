@@ -9,19 +9,24 @@
     "splash": {
       "image": "./assets/eazy-camp.png",
       "resizeMode": "contain",
-      "backgroundColor": ""
+      "backgroundColor": "#fff8ee"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "userInterfaceStyle": "automatic",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#fff8ee"
+      }
     },
     "android": {
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#fff8ee"
       }
     },
     "web": {

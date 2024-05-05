@@ -3,15 +3,15 @@ import { colors } from "./colors";
 export const lightTheme = {
     colors: {
         ...colors,
-        background: "#94a1b2",
-        text: "#16161a",
+        background: "#fff8ee",
+        text: "#2a2a2a",
     },
     padding: {
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
     shadow: {
-        shadowColor: "#000",
+        shadowColor: "#2a2a2a",
         shadowOffset: {
             width: 0,
             height: 2,
@@ -26,15 +26,15 @@ export const lightTheme = {
 export const darkTheme = {
     colors: {
         ...colors,
-        background: "#16161a",
-        text: "#94a1b2",
+        background: "#2a2a2a",
+        text: "#fff8ee",
     },
     padding: {
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
     shadow: {
-        shadowColor: "#fff",
+        shadowColor: "#fff8ee",
         shadowOffset: {
             width: 0,
             height: 2,
