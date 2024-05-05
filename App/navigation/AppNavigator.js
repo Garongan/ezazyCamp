@@ -10,6 +10,10 @@ import LoginScreen from "../Screen/Login/LoginScreen";
 import RegisterScreen from "../Screen/Register/RegisterScreen";
 import RegisterGuideScreen from "../Screen/Register/RegisterGuideScreen";
 import TermsScreen from "../Screen/Terms/TermsScreen";
+import HomeScreen from "../Screen/Home/HomeScreen";
+import OrderScreen from "../Screen/Order/OrderScreen";
+import ProfileScreen from "../Screen/Profile/ProfileScreen";
+import { useTheme } from "../context/ThemeContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -31,18 +35,22 @@ function getTabBarIcon(routeName, { color, focused, size }) {
 }
 
 function TabNavigation() {
+    const { theme } = useTheme();
     return (
         <Tab.Navigator
             screenOptions={({ route }) => {
                 return {
-                    headerShown: false,
                     tabBarIcon: (opt) => getTabBarIcon(route.name, opt),
+                    headerShown: false,
+                    tabBarActiveTintColor: theme.colors.primary,
+                    tabBarShowLabel: true,
+                    tabBarStyle: { backgroundColor: theme.colors.background },
                 };
             }}
         >
-            {/* <Tab.Screen name="Home" component={HomeScreen} />
+            <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Order" component={OrderScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} /> */}
+            <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
     );
 }
@@ -51,22 +59,23 @@ function StackNavigation() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {/* <Stack.Screen name="Splash" component={SplashScreen} /> */}
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            {/* <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} /> */}
             {/* <Stack.Screen name="RegisterGuide" component={RegisterGuideScreen} /> */}
-            <Stack.Screen name="Terms" component={TermsScreen} />
-            {/* <Stack.Screen name="TabHome" component={TabNavigation} />
-            <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+            {/* <Stack.Screen name="Terms" component={TermsScreen} /> */}
+            <Stack.Screen name="TabHome" component={TabNavigation} />
+            {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
             <Stack.Screen name="Cart" component={CartScreen} /> */}
         </Stack.Navigator>
     );
 }
 
 function AppNavigator() {
+    const { theme } = useTheme();
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <StatusBar />
+            <StatusBar backgroundColor={theme.colors.background} />
             <NavigationContainer>
                 <StackNavigation />
             </NavigationContainer>
