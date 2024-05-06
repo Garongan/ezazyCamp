@@ -62,12 +62,18 @@ const RegisterScreen = ({ navigation }) => {
     const passwordInputRef = useRef();
     const service = useAuthService();
 
+    const clearForm = () => {
+        reset();
+        clearErrors();
+    };
+
     const onSubmit = async (data) => {
         try {
             const newData = { name: data.name, phone: data.phone, username: data.username, password: data.password };
             const response = await service.register(newData);
             if (response.statusCode === 201) {
                 navigation.replace("Login");
+                clearForm();
             }
         } catch (error) {
             throw error;

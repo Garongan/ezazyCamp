@@ -2,14 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { SafeAreaView } from "react-native-safe-area-context";
-import SplashScreen from "../Screen/Splash/SplashScreen";
-import WelcomeScreen from "../Screen/Welcome/WelcomeScreen";
 import { Appearance, StatusBar } from "react-native";
-import LoginScreen from "../Screen/Login/LoginScreen";
-import RegisterScreen from "../Screen/Register/RegisterScreen";
-import RegisterGuideScreen from "../Screen/Register/RegisterGuideScreen";
-import TermsScreen from "../Screen/Terms/TermsScreen";
+import { SafeAreaView } from "react-native-safe-area-context";
 import HomeScreen from "../Screen/Home/HomeScreen";
 import OrderScreen from "../Screen/Order/OrderScreen";
 import ProfileScreen from "../Screen/Profile/ProfileScreen";
@@ -58,12 +52,11 @@ function TabNavigation() {
 function StackNavigation() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
-            <Stack.Screen name="Splash" component={SplashScreen} />
+            {/* <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-            {/* <Stack.Screen name="RegisterGuide" component={RegisterGuideScreen} /> */}
-            <Stack.Screen name="Terms" component={TermsScreen} />
+            <Stack.Screen name="Terms" component={TermsScreen} /> */}
             <Stack.Screen name="TabHome" component={TabNavigation} />
             {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
             <Stack.Screen name="Cart" component={CartScreen} /> */}

@@ -58,9 +58,13 @@ const LoginScreen = ({ navigation }) => {
                 index: 0,
                 routes: [{ name: "TabHome" }],
             });
-            if (response.statusCode === 200) {
+            if (
+                response.statusCode === 200 &&
+                (response.data.roles.includes("ROLE_CUSTOMER") || response.data.roles.includes("ROLE_GUIDE"))
+            ) {
                 await localStorage.setData("token", response.data.token);
                 navigation.dispatch(resultAction);
+                clearForm();
             }
         } catch (error) {
             throw error;

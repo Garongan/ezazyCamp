@@ -1,7 +1,11 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { FlatList, Image, Text, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, FlatList, Image, Text, TextInput, View } from "react-native";
+import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
+import { typography } from "../../shared/constant/typography";
 
 const EQUIPMENT = [
     {
@@ -69,6 +73,12 @@ const EQUIPMENT = [
 const HomeScreen = () => {
     const { theme } = useTheme();
     const [refreshing, setRefreshing] = React.useState(false);
+    const { control, handleSubmit } = useForm({
+        mode: "onSubmit",
+        defaultValues: {
+            search: "",
+        },
+    });
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -77,41 +87,104 @@ const HomeScreen = () => {
         }, 2000);
     }, []);
 
+    const onSubmit = (data) => {
+        Alert.alert("Search", "Searching..." + data.search);
+    };
+
     return (
-        <View style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
-            <FlatList
-                data={EQUIPMENT}
-                keyExtractor={(item) => item.id}
-                numColumns={3}
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                renderItem={({ item }) => (
-                    <View
-                        style={[{
-                            flex: 1,
-                            flexDirection: "column",
-                            margin: 10,
-                            backgroundColor: theme.colors.primary,
-                            borderRadius: borders.radiusSmall,
-                            paddingBottom: 10
-                        }, theme.shadow]}
-                    >
-                        <Image
-                            source={{ uri: item.image }}
-                            style={{
-                                width: "100%",
-                                height: 100,
-                                borderRadius: borders.radiusSmall,
-                                objectFit: "cover",
-                                marginBottom: 10
-                            }}
-                        />
-                        <Text style={{ color: theme.colors.text, paddingHorizontal: 10 }}>{item.name}</Text>
-                        <Text style={{ color: theme.colors.text, paddingHorizontal: 10 }}>{item.description}</Text>
-                    </View>
-                )}
+        <>
+            <Image
+                style={{ position: "absolute", zIndex: 0, objectFit: "cover", width: "100%", height: "100%" }}
+                source={require("../../../assets/home.jpg")}
             />
-        </View>
+            <View style={[{ zIndex: 1, position: "relative", width: '100%' }, theme.padding]}>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        paddingVertical: 20,
+                    }}
+                >
+                    <Text style={[typography.header, { color: theme.colors.text }]}>Eazy Camp</Text>
+                    <UserAvatar size={35} name="Alvindo" />
+                </View>
+                <Text style={[typography.title, {color: theme.colors.text, marginBottom: 20}]}>Welcome Back, Alvindo</Text>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        borderRadius: borders.radiusLarge,
+                        width: "100%",
+                        backgroundColor: theme.colors.background,
+                    }}
+                >
+                    <Ionicons
+                        style={{ marginHorizontal: 10 }}
+                        name="search-outline"
+                        size={24}
+                        color={theme.colors.text}
+                    />
+                    <Controller
+                        control={control}
+                        name="search"
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                                style={{ flex: 1, padding: 10, color: theme.colors.text }}
+                                onChangeText={onChange}
+                                returnKeyType="search"
+                                onBlur={onBlur}
+                                value={value}
+                                placeholder="Cari peralatan camping..."
+                                placeholderTextColor={theme.colors.text}
+                                onSubmitEditing={handleSubmit(onSubmit)}
+                            />
+                        )}
+                    />
+                </View>
+                <Text style={[typography.title, {color: theme.colors.text, marginVertical: 50}]}>
+                    The journey of thousand miles begins with a single step. ~ 老子 (Lao Tzu).
+                </Text>
+                <View>
+                    
+                </View>
+                <FlatList
+                    data={EQUIPMENT}
+                    horizontal
+                    keyExtractor={(item) => item.id}
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    contentContainerStyle={{ gap: 10 }}
+                    renderItem={({ item }) => (
+                        <View
+                            style={[
+                                {
+                                    flex: 1,
+                                    flexDirection: "column",
+                                    backgroundColor: theme.colors.primary,
+                                    borderRadius: borders.radiusSmall,
+                                    paddingBottom: 10,
+                                },
+                                theme.shadow,
+                            ]}
+                        >
+                            <Image
+                                source={{ uri: item.image }}
+                                style={{
+                                    width: "100%",
+                                    height: 300,
+                                    borderRadius: borders.radiusSmall,
+                                    objectFit: "cover",
+                                    marginBottom: 10,
+                                }}
+                            />
+                            <Text style={{ color: theme.colors.text, paddingHorizontal: 10 }}>{item.name}</Text>
+                            <Text style={{ color: theme.colors.text, paddingHorizontal: 10 }}>{item.description}</Text>
+                        </View>
+                    )}
+                />
+            </View>
+        </>
     );
 };
 

@@ -30,7 +30,9 @@ function SplashScreen({ navigation }) {
                     navigation.navigate("Welcome");
                 }
             } else {
-                navigation.navigate("Welcome");
+                setTimeout(() => {
+                    navigation.navigate("Welcome");
+                }, 1000);
             }
         };
         validateToken();
