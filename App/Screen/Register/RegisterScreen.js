@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+    ActivityIndicator,
     Alert,
     Image,
     Keyboard,
@@ -15,8 +16,11 @@ import {
 } from "react-native";
 import { z } from "zod";
 import { useTheme } from "../../context/ThemeContext";
+import useAuthService from "../../service/useAuthService";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
+import useLocalStorage from "../../utils/useLocalStorage";
+import { CommonActions } from "@react-navigation/native";
 
 const schema = z.object({
     name: z.string().min(1, { message: "Nama Kamu Tidak Boleh Kosong" }),
@@ -35,6 +39,7 @@ const RegisterScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const [showPassword, setShowPassword] = useState(true);
     const [isCheck, setIsCheck] = useState(false);
+    const localStorage = useLocalStorage();
     const {
         control,
         handleSubmit,
@@ -55,9 +60,18 @@ const RegisterScreen = ({ navigation }) => {
     const phoneNumberRef = useRef();
     const usernameRef = useRef();
     const passwordInputRef = useRef();
+    const service = useAuthService();
 
-    const onSubmit = (data) => {
-        Alert.alert("Data", JSON.stringify(data));
+    const onSubmit = async (data) => {
+        try {
+            const newData = { name: data.name, phone: data.phone, username: data.username, password: data.password };
+            const response = await service.register(newData);
+            if (response.statusCode === 201) {
+                navigation.replace("Login");
+            }
+        } catch (error) {
+            throw error;
+        }
     };
 
     return (
@@ -70,8 +84,8 @@ const RegisterScreen = ({ navigation }) => {
                 theme.padding,
             ]}
         >
-            <View style={{ justifyContent: "center", alignItems: "center", paddingBottom: 70 }}>
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ justifyContent: "center", alignItems: "center", paddingBottom: 70 }}>
                     <Image
                         style={{ objectFit: "contain", height: 300 }}
                         source={require("../../../assets/eazy-camp.png")}
@@ -299,8 +313,8 @@ const RegisterScreen = ({ navigation }) => {
                             </Text>
                         </TouchableOpacity>
                     </View>
-                </TouchableWithoutFeedback>
-            </View>
+                </View>
+            </TouchableWithoutFeedback>
         </ScrollView>
     );
 };

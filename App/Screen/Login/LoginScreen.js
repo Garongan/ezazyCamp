@@ -17,6 +17,8 @@ import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import { CommonActions } from "@react-navigation/native";
+import useAuthService from "../../service/useAuthService";
+import useLocalStorage from "../../utils/useLocalStorage";
 
 const schema = z.object({
     username: z.string().min(1, { message: "Username Kamu Tidak Boleh Kosong" }),
@@ -26,6 +28,8 @@ const LoginScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const [showPassword, setShowPassword] = useState(true);
     const passwordInputRef = useRef();
+    const service = useAuthService();
+    const localStorage = useLocalStorage();
     const {
         control,
         handleSubmit,
@@ -47,35 +51,35 @@ const LoginScreen = ({ navigation }) => {
         Keyboard.dismiss();
     };
 
-    const onSubmit = (data) => {
-        Alert.alert("Data", JSON.stringify(data), [
-            {
-                text: "OK",
-                onPress: () => {
-                    clearForm();
-                    const resultAction = CommonActions.reset({
-                        index: 0,
-                        routes: [{ name: "TabHome" }],
-                    });
-                    navigation.dispatch(resultAction);
-                },
-            },
-        ]);
+    const onSubmit = async (data) => {
+        try {
+            const response = await service.login(data);
+            const resultAction = CommonActions.reset({
+                index: 0,
+                routes: [{ name: "TabHome" }],
+            });
+            if (response.statusCode === 200) {
+                await localStorage.setData("token", response.data.token);
+                navigation.dispatch(resultAction);
+            }
+        } catch (error) {
+            throw error;
+        }
     };
 
     return (
-        <View
-            style={[
-                {
-                    flex: 1,
-                    backgroundColor: theme.colors.background,
-                    justifyContent: "center",
-                    alignItems: "center",
-                },
-                theme.padding,
-            ]}
-        >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View
+                style={[
+                    {
+                        flex: 1,
+                        backgroundColor: theme.colors.background,
+                        justifyContent: "center",
+                        alignItems: "center",
+                    },
+                    theme.padding,
+                ]}
+            >
                 <Image
                     style={{ objectFit: "contain", height: 300 }}
                     source={require("../../../assets/eazy-camp.png")}
@@ -186,8 +190,8 @@ const LoginScreen = ({ navigation }) => {
                         </Text>
                     </TouchableOpacity>
                 </View>
-            </TouchableWithoutFeedback>
-        </View>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 

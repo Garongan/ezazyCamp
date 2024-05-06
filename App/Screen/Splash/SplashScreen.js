@@ -1,43 +1,47 @@
 import { useEffect, useMemo } from "react";
-import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
-import { typography } from "../../shared/constant/typography";
+import useLocalStorage from "../../utils/useLocalStorage";
+import useAuthService from "../../service/useAuthService";
 
 function SplashScreen({ navigation }) {
     const { theme } = useTheme();
+    const localStorage = useLocalStorage();
+    const service = useAuthService();
     const styles = useMemo(
         () =>
             StyleSheet.create({
                 container: {
-                    position: "absolute",
-                    bottom: 50,
-                    zIndex: 1,
-                    width: "100%"
+                    flex: 1,
+                    backgroundColor: theme.colors.background,
+                    justifyContent: "center",
+                    alignItems: "center",
                 },
             }),
         []
     );
 
     useEffect(() => {
-        setTimeout(() => {
-            navigation.replace("Welcome");
-        }, 2000);
-    });
+        const validateToken = async () => {
+            if (await localStorage.getData("token")) {
+                if (await service.validateToken()) {
+                    navigation.replace("TabHome");
+                } else {
+                    navigation.navigate("Welcome");
+                }
+            } else {
+                navigation.navigate("Welcome");
+            }
+        };
+        validateToken();
+    }, []);
 
     return (
-        <View style={[{ flex: 1 }]}>
+        <View style={[styles.container, theme.padding]}>
             <Image
-                style={{ zIndex: 0, objectFit: "cover", width: "auto", height: "100%" }}
-                source={require("../../../assets/splash.jpg")}
+                style={{ alignContent: "center", objectFit: "contain", width: 200, height: 200 }}
+                source={require("../../../assets/eazy-camp.png")}
             />
-            <View style={[styles.container, theme.padding]}>
-                <Image
-                    style={{ alignContent: 'center', objectFit: "contain", width: "auto", height: 300 }}
-                    source={require("../../../assets/eazy-camp.png")}
-                />
-                <Text style={[typography.header, { color: theme.colors.primary }]}>Eazy Camp</Text>
-                <Text style={[typography.header, { color: theme.colors.primary }]}>Sewa Sekarang, Ndaki Kemudian</Text>
-            </View>
         </View>
     );
     ``;
