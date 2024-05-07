@@ -147,7 +147,7 @@ const HomeScreen = () => {
                                 style={[styles.optionLayer, activeOption === "Equipment" && styles.activeLayer]}
                                 onPress={() => setActiveOption("Equipment")}
                             >
-                                <View style={[styles.option, { opacity: 0 }]} />
+                                <View style={[styles.option, activeOption === "Equipment" && styles.activeOption]} />
                                 <Text style={styles.optionText}>Peralatan</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.optionLayer, activeOption === "Guide" && styles.activeLayer]} onPress={() => setActiveOption("Guide")}>
