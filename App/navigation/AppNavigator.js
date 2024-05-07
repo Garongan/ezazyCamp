@@ -2,18 +2,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { StatusBar } from "expo-status-bar";
 import { Appearance } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import HomeScreen from "../Screen/Home/HomeScreen";
-import OrderScreen from "../Screen/Order/OrderScreen";
-import ProfileScreen from "../Screen/Profile/ProfileScreen";
 import { useTheme } from "../context/ThemeContext";
-import { StatusBar } from "expo-status-bar";
-import WelcomeScreen from "../Screen/Welcome/WelcomeScreen";
-import SplashScreen from "../Screen/Splash/SplashScreen";
-import LoginScreen from "../Screen/Login/LoginScreen";
-import RegisterScreen from "../Screen/Register/RegisterScreen";
-import TermsScreen from "../Screen/Terms/TermsScreen";
+import SplashScreen from "../screen/Splash/SplashScreen";
+import WelcomeScreen from "../screen/Welcome/WelcomeScreen";
+import LoginScreen from "../screen/Login/LoginScreen";
+import RegisterScreen from "../screen/Register/RegisterScreen";
+import TermsScreen from "../screen/Terms/TermsScreen";
+import LocationDetail from "../screen/Home/LocationDetail";
+import HomeScreen from "../screen/Home/HomeScreen";
+import OrderScreen from "../screen/Order/OrderScreen";
+import ProfileScreen from "../screen/Profile/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -58,14 +59,13 @@ function TabNavigation() {
 function StackNavigation() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
-            {/* <Stack.Screen name="Splash" component={SplashScreen} />
+            <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="Terms" component={TermsScreen} /> */}
+            <Stack.Screen name="Terms" component={TermsScreen} />
             <Stack.Screen name="TabHome" component={TabNavigation} />
-            {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-            <Stack.Screen name="Cart" component={CartScreen} /> */}
+            <Stack.Screen name="LocationDetail" component={LocationDetail} />
         </Stack.Navigator>
     );
 }
