@@ -25,7 +25,14 @@ function SplashScreen({ navigation }) {
         const validateToken = async () => {
             if (await localStorage.getData("token")) {
                 if (await service.validateToken()) {
-                    navigation.replace("TabHome");
+                    localStorage.getData("user").then(async (data) => {
+                        const user = JSON.parse(data);
+                        if (user) {
+                            navigation.replace("TabHome", { name: user.name });
+                        } else {
+                            navigation.navigate("Welcome");
+                        }
+                    });
                 } else {
                     navigation.navigate("Welcome");
                 }

@@ -2,7 +2,7 @@ import axios from "axios";
 import useLocalStorage from "../utils/useLocalStorage";
 
 const axiosInstance = axios.create({
-    baseURL: "http://10.10.102.44:8085/api",
+    baseURL: "http://10.10.102.33:8085/api",
 });
 
 axiosInstance.interceptors.request.use(

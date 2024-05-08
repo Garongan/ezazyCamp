@@ -3,8 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-    ActivityIndicator,
-    Alert,
     Image,
     Keyboard,
     ScrollView,
@@ -12,15 +10,13 @@ import {
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View,
+    View
 } from "react-native";
 import { z } from "zod";
 import { useTheme } from "../../context/ThemeContext";
 import useAuthService from "../../service/useAuthService";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
-import useLocalStorage from "../../utils/useLocalStorage";
-import { CommonActions } from "@react-navigation/native";
 
 const schema = z.object({
     name: z.string().min(1, { message: "Nama Kamu Tidak Boleh Kosong" }),
@@ -39,7 +35,6 @@ const RegisterScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const [showPassword, setShowPassword] = useState(true);
     const [isCheck, setIsCheck] = useState(false);
-    const localStorage = useLocalStorage();
     const {
         control,
         handleSubmit,

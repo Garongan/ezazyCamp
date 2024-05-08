@@ -16,7 +16,7 @@ const useAuthService = () => {
             const { data } = await axiosInstance.get("/auth/validate-token");
             return data.statusCode === 200;
         } catch (error) {
-            localStorage.removeData("token");
+            localStorage.removeData("user");
             return false;
         }
     };
