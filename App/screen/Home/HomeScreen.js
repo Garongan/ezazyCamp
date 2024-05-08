@@ -1,15 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Dimensions, ImageBackground, Keyboard, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Dimensions, ImageBackground, Keyboard, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
+import CustomHeader from "../../shared/components/CustomHeader";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import LocationList from "./LocationList";
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ route, navigation, name }) => {
     const { theme } = useTheme();
     const { control, handleSubmit } = useForm({
         mode: "onSubmit",
@@ -17,7 +18,6 @@ const HomeScreen = ({ navigation }) => {
             search: "",
         },
     });
-
     const [activeOption, setActiveOption] = useState("Equipment");
 
     const onSubmit = (data) => {
@@ -33,19 +33,15 @@ const HomeScreen = ({ navigation }) => {
             >
                 <ScrollView style={{ flex: 1, backgroundColor: "rgba(42, 42, 42, 0.7)" }}>
                     <View style={theme.padding}>
-                        <View
-                            style={{
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                paddingVertical: 20,
-                            }}
-                        >
-                            <Text style={[typography.header, { color: theme.colors.text }]}>Eazy Camp</Text>
-                            <UserAvatar size={35} name="Alvindo" />
-                        </View>
+                        <CustomHeader title="Eazy Camp">
+                            <TouchableOpacity onPress={() => navigation.jumpTo("Profile", { screen: "ProfileScreen" })}>
+                                {/* <Ionicons name="person-circle-outline" size={32} color={theme.colors.primary} /> */}
+                                <UserAvatar size={35} name={name} bgColor={theme.colors.primary} />
+                            </TouchableOpacity>
+                        </CustomHeader>
+
                         <Text style={[typography.title, { color: theme.colors.text, marginVertical: 30 }]}>
-                            Selamat Datang, Alvindo
+                            Selamat Datang, {name}
                         </Text>
                         <View
                             style={{
@@ -79,7 +75,17 @@ const HomeScreen = ({ navigation }) => {
                                 )}
                             />
                         </View>
-                        <Text style={[typography.title, { color: theme.colors.text, marginVertical: 50 }]}>
+                        <Text
+                            style={[
+                                typography.title,
+                                {
+                                    textAlign: "center",
+                                    paddingHorizontal: 20,
+                                    color: theme.colors.text,
+                                    marginVertical: 50,
+                                },
+                            ]}
+                        >
                             The journey of thousand miles begins with a single step. ~ 老子 (Lao Tzu).
                         </Text>
                         <Text style={[typography.header, { color: theme.colors.text, marginBottom: 10 }]}>

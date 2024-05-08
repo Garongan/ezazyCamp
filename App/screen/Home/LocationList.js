@@ -81,6 +81,7 @@ const LocationList = ({ navigation }) => {
                             flexDirection: "column",
                             backgroundColor: theme.colors.background,
                             marginBottom: 50,
+                            borderRadius: borders.radiusLarge,
                         },
                     ]}
                 >

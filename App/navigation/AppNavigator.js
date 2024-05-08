@@ -15,6 +15,7 @@ import LocationDetail from "../screen/Home/LocationDetail";
 import HomeScreen from "../screen/Home/HomeScreen";
 import OrderScreen from "../screen/Order/OrderScreen";
 import ProfileScreen from "../screen/Profile/ProfileScreen";
+import EditProfileScreen from "../screen/Profile/EditProfileScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -35,7 +36,7 @@ function getTabBarIcon(routeName, { color, focused, size }) {
     return <Ionicons name={name} size={size} color={color} />;
 }
 
-function TabNavigation() {
+function TabNavigation({ route }) {
     const { theme } = useTheme();
     return (
         <Tab.Navigator
@@ -49,7 +50,7 @@ function TabNavigation() {
                 };
             }}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
+            <Tab.Screen name="Home">{(props) => <HomeScreen {...props} name={route.params?.name} />}</Tab.Screen>
             <Tab.Screen name="Order" component={OrderScreen} />
             <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
@@ -66,6 +67,7 @@ function StackNavigation() {
             <Stack.Screen name="Terms" component={TermsScreen} />
             <Stack.Screen name="TabHome" component={TabNavigation} />
             <Stack.Screen name="LocationDetail" component={LocationDetail} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         </Stack.Navigator>
     );
 }
