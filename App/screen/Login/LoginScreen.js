@@ -1,23 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CommonActions } from "@react-navigation/native";
 import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-    Alert,
     Image,
     Keyboard,
     Text,
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View,
+    View
 } from "react-native";
 import { z } from "zod";
 import { useTheme } from "../../context/ThemeContext";
+import useAuthService from "../../service/useAuthService";
+import useCustomerService from "../../service/useCustomerService";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
-import { CommonActions } from "@react-navigation/native";
-import useAuthService from "../../service/useAuthService";
 import useLocalStorage from "../../utils/useLocalStorage";
 
 const schema = z.object({
@@ -28,7 +28,8 @@ const LoginScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const [showPassword, setShowPassword] = useState(true);
     const passwordInputRef = useRef();
-    const service = useAuthService();
+    const authService = useAuthService();
+    const customerService = useCustomerService();
     const localStorage = useLocalStorage();
     const {
         control,
@@ -53,21 +54,40 @@ const LoginScreen = ({ navigation }) => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await service.login(data);
-            const resultAction = CommonActions.reset({
-                index: 0,
-                routes: [{ name: "TabHome" }],
-            });
+            const response = await authService.login(data);
             if (
                 response.statusCode === 200 &&
                 (response.data.roles.includes("ROLE_CUSTOMER") || response.data.roles.includes("ROLE_GUIDE"))
             ) {
                 await localStorage.setData("token", response.data.token);
-                navigation.dispatch(resultAction);
                 clearForm();
             }
         } catch (error) {
-            throw error;
+            throw new Error("Gagal Login");
+        }
+        try {
+            const customer = await customerService.getByUsername(data.username);
+            const savedCustomer = {
+                id: customer.data.id,
+                name: customer.data.name,
+                phone: customer.data.phone,
+                username: customer.data.userAccount.username,
+            };
+            await localStorage.setData("user", JSON.stringify(savedCustomer));
+            localStorage.getData("user").then(async (data) => {
+                const user = JSON.parse(data);
+                if (user) {
+                    const resultAction = CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: "TabHome", params: { name: user.name } }],
+                    });
+                    navigation.dispatch(resultAction);
+                } else {
+                    navigation.navigate("Welcome");
+                }
+            });
+        } catch (error) {
+            throw new Error("Gagal Mengambil Data Customer");
         }
     };
 
