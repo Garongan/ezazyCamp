@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { CommonActions } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
@@ -113,7 +113,7 @@ const ProfileScreen = ({ navigation }) => {
                                     borderRadius: borders.radiusSmall,
                                 }}
                             >
-                                <Text style={{ color: theme.colors.text }}>Edit Profile</Text>
+                                <Text style={{ color: "#fff8ee" }}>Edit Profile</Text>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -167,18 +167,19 @@ const ProfileScreen = ({ navigation }) => {
             </View>
             <TouchableOpacity
                 style={{
-                    borderTopWidth: 1,
-                    borderTopColor: theme.colors.primary,
+                    backgroundColor: theme.colors.primary,
+                    borderRadius: borders.radiusLarge,
                     marginTop: 10,
+                    paddingHorizontal: 20,
                     flexDirection: "row",
                     paddingVertical: 10,
                     alignItems: "center",
-                    justifyContent: 'space-between'
+                    justifyContent: "space-between",
                 }}
                 onPress={handleLogout}
             >
-                <Text style={{ color: theme.colors.text, marginRight: 20 }}>Logout</Text>
-                <MaterialIcons name="logout" size={24} color={theme.colors.text} />
+                <Text style={{ color: "#fff8ee", marginRight: 20 }}>Logout</Text>
+                <MaterialIcons name="logout" size={24} color="#fff8ee" />
             </TouchableOpacity>
         </View>
     );

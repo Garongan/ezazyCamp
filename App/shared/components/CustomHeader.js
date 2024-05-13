@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { typography } from "../constant/typography";
 
-const CustomHeader = ({ title, children }) => {
+const CustomHeader = ({ title, children, style }) => {
     const { theme } = useTheme();
     return (
         <View
@@ -12,7 +12,7 @@ const CustomHeader = ({ title, children }) => {
                 paddingVertical: 20,
             }}
         >
-            <Text style={[typography.header, { color: theme.colors.text }]}>{title}</Text>
+            <Text style={[ typography.header, { color: theme.colors.text }, style ]}>{title}</Text>
             {children}
         </View>
     );
