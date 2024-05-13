@@ -1,12 +1,12 @@
+import { BlurView } from "expo-blur";
 import React, { useRef } from "react";
-import { Alert, Dimensions, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, ImageBackground, Text, TouchableOpacity, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { useTheme } from "../../context/ThemeContext";
-import { BlurView } from "expo-blur";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 
-const LocationDetail = ({ route }) => {
+const LocationDetail = ({ navigation, route }) => {
     const { theme } = useTheme();
     const isCarousel = useRef(null);
     const { item } = route.params;
@@ -23,7 +23,7 @@ const LocationDetail = ({ route }) => {
                 autoplayInterval={3000}
                 renderItem={({ item }) => (
                     <ImageBackground
-                        source={{ uri: item.url }}
+                        source={{ uri: process.env.EXPO_PUBLIC_BASE_API_URL + item.url }}
                         resizeMode="cover"
                         style={{ width: "100%", height: Dimensions.get("window").height }}
                     />
@@ -41,22 +41,20 @@ const LocationDetail = ({ route }) => {
                 ]}
             >
                 <BlurView
-                    intensity={30}
+                    intensity={70}
                     experimentalBlurMethod="dimezisBlurView"
                     tint="dark"
                     style={{ borderRadius: borders.radiusLarge, overflow: "hidden" }}
                 >
                     <View style={{ flex: 1, width: Dimensions.get("window").width - 40, padding: 20 }}>
-                        <Text style={[{ color: theme.colors.text, paddingBottom: 10 }, typography.title]}>
-                            {item.name}
-                        </Text>
-                        <Text style={[{ color: theme.colors.text }, typography.title]}>Description:</Text>
+                        <Text style={[{ color: "#fff8ee", paddingBottom: 10 }, typography.title]}>{item.name}</Text>
+                        <Text style={[{ color: "#fff8ee" }, typography.title]}>Description:</Text>
                         <Text
                             style={[
                                 {
-                                    color: theme.colors.text,
+                                    color: "#fff8ee",
                                     borderBottomWidth: 0.5,
-                                    borderBottomColor: theme.colors.text,
+                                    borderBottomColor: "#fff8ee",
                                     paddingBottom: 10,
                                     marginBottom: 10,
                                 },
@@ -65,13 +63,13 @@ const LocationDetail = ({ route }) => {
                         >
                             {item.description}
                         </Text>
-                        <Text style={[{ color: theme.colors.text }, typography.title]}>Rekomendasi Aktivitas:</Text>
+                        <Text style={[{ color: "#fff8ee" }, typography.title]}>Rekomendasi Aktivitas:</Text>
                         <Text
                             style={[
                                 {
-                                    color: theme.colors.text,
+                                    color: "#fff8ee",
                                     borderBottomWidth: 0.5,
-                                    borderBottomColor: theme.colors.text,
+                                    borderBottomColor: "#fff8ee",
                                     paddingBottom: 10,
                                     marginBottom: 10,
                                 },
@@ -80,11 +78,11 @@ const LocationDetail = ({ route }) => {
                         >
                             {item.recommendedActivity}
                         </Text>
-                        <Text style={[{ color: theme.colors.text }, typography.title]}>Safety Tips:</Text>
+                        <Text style={[{ color: "#fff8ee" }, typography.title]}>Safety Tips:</Text>
                         <Text
                             style={[
                                 {
-                                    color: theme.colors.text,
+                                    color: "#fff8ee",
                                     paddingBottom: 10,
                                 },
                                 typography.body,
@@ -95,7 +93,7 @@ const LocationDetail = ({ route }) => {
                     </View>
                     <View style={{ flex: 1, alignItems: "center" }}>
                         <TouchableOpacity
-                            onPress={() => Alert.alert("Pilih Lokasi", JSON.stringify(item.id))}
+                            onPress={() => navigation.navigate("Equipment", { location: item })}
                             style={{
                                 borderRadius: borders.radiusLarge,
                                 backgroundColor: theme.colors.primary,
@@ -104,7 +102,7 @@ const LocationDetail = ({ route }) => {
                                 marginBottom: 30,
                             }}
                         >
-                            <Text style={[{ color: theme.colors.text }, typography.title]}>Pilih Lokasi</Text>
+                            <Text style={[{ color: "#fff8ee" }, typography.title]}>Pilih Lokasi</Text>
                         </TouchableOpacity>
                     </View>
                 </BlurView>
