@@ -16,6 +16,8 @@ import HomeScreen from "../screen/Home/HomeScreen";
 import OrderScreen from "../screen/Order/OrderScreen";
 import ProfileScreen from "../screen/Profile/ProfileScreen";
 import EditProfileScreen from "../screen/Profile/EditProfileScreen";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import EquipmentScreen from "../screen/Equiptment/EquipmentScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -26,8 +28,11 @@ function getTabBarIcon(routeName, { color, focused, size }) {
         case "Home":
             name = focused ? "home" : "home-outline";
             break;
-        case "Order":
-            name = focused ? "receipt" : "receipt-outline";
+        case "Equipment":
+            name = focused ? "compass" : "compass-outline";
+            break;
+        case "Cart":
+            name = focused ? "cart" : "cart-outline";
             break;
         case "Profile":
             name = focused ? "person" : "person-outline";
@@ -46,29 +51,39 @@ function TabNavigation({ route }) {
                     headerShown: false,
                     tabBarActiveTintColor: theme.colors.primary,
                     tabBarShowLabel: true,
-                    tabBarStyle: { backgroundColor: theme.colors.background },
+                    tabBarStyle: {
+                        borderTopWidth: 0,
+                        backgroundColor: theme.colors.background,
+                        height: 60,
+                        paddingBottom: 5,
+                        alignItems: "center",
+                    },
                 };
             }}
         >
             <Tab.Screen name="Home">{(props) => <HomeScreen {...props} name={route.params?.name} />}</Tab.Screen>
-            <Tab.Screen name="Order" component={OrderScreen} />
+            <Tab.Screen name="Equipment" component={EquipmentScreen} />
+            <Tab.Screen name="Cart" component={OrderScreen} />
             <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
     );
 }
 
 function StackNavigation() {
+    const queryClient = new QueryClient();
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="Terms" component={TermsScreen} />
-            <Stack.Screen name="TabHome" component={TabNavigation} />
-            <Stack.Screen name="LocationDetail" component={LocationDetail} />
-            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        </Stack.Navigator>
+        <QueryClientProvider client={queryClient}>
+            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+                <Stack.Screen name="Splash" component={SplashScreen} />
+                <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="Terms" component={TermsScreen} />
+                <Stack.Screen name="TabHome" component={TabNavigation} />
+                <Stack.Screen name="LocationDetail" component={LocationDetail} />
+                <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            </Stack.Navigator>
+        </QueryClientProvider>
     );
 }
 

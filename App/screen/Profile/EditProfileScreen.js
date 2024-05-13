@@ -27,7 +27,7 @@ const EditProfileScreen = ({ route, navigation }) => {
             const savedData = { id: id, name: valueName, phone: valuePhone, username: username };
             const response = await service.updateById(savedData);
             if (response.statusCode === 200) {
-                await localStorage.setData("user", savedData);
+                await localStorage.setData("user", JSON.stringify(savedData));
                 navigation.dispatch(CommonActions.goBack());
             }
         } catch (error) {
