@@ -6,6 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/eazy-camp.png",
     "userInterfaceStyle": "automatic",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to upload guarantee photos."
+        }
+      ]
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],
