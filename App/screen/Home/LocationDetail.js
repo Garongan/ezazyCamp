@@ -1,15 +1,34 @@
 import { BlurView } from "expo-blur";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Dimensions, ImageBackground, Text, TouchableOpacity, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
+import useLocalStorage from "../../utils/useLocalStorage";
 
 const LocationDetail = ({ navigation, route }) => {
     const { theme } = useTheme();
     const isCarousel = useRef(null);
     const { item } = route.params;
+    const localStorage = useLocalStorage();
+
+    const handleAddLocation = async () => {
+        await localStorage.setData("location", JSON.stringify({ id: item.id, name: item.name }));
+        navigation.goBack();
+    };
+
+    useEffect(() => {
+        const getUser = async () => {
+            try {
+                const user = await localStorage.getData("user");
+                if (user) {
+                    setUser(JSON.parse(user));
+                }
+            } catch (error) {}
+        };
+        getUser();
+    }, []);
 
     return (
         <View style={{ backgroundColor: theme.colors.background }}>
@@ -93,7 +112,7 @@ const LocationDetail = ({ navigation, route }) => {
                     </View>
                     <View style={{ flex: 1, alignItems: "center" }}>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate("Equipment", { location: item })}
+                            onPress={handleAddLocation}
                             style={{
                                 borderRadius: borders.radiusLarge,
                                 backgroundColor: theme.colors.primary,

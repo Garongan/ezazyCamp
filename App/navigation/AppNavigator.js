@@ -2,22 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
 import { Appearance } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
-import SplashScreen from "../screen/Splash/SplashScreen";
-import WelcomeScreen from "../screen/Welcome/WelcomeScreen";
-import LoginScreen from "../screen/Login/LoginScreen";
-import RegisterScreen from "../screen/Register/RegisterScreen";
-import TermsScreen from "../screen/Terms/TermsScreen";
-import LocationDetail from "../screen/Home/LocationDetail";
-import HomeScreen from "../screen/Home/HomeScreen";
-import OrderScreen from "../screen/Order/OrderScreen";
-import ProfileScreen from "../screen/Profile/ProfileScreen";
-import EditProfileScreen from "../screen/Profile/EditProfileScreen";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import CartScreen from "../screen/Cart/CartScreen";
+import EquipmentDetail from "../screen/Equiptment/EquipmentDetail";
 import EquipmentScreen from "../screen/Equiptment/EquipmentScreen";
+import HomeScreen from "../screen/Home/HomeScreen";
+import LocationDetail from "../screen/Home/LocationDetail";
+import LoginScreen from "../screen/Login/LoginScreen";
+import EditProfileScreen from "../screen/Profile/EditProfileScreen";
+import ProfileScreen from "../screen/Profile/ProfileScreen";
+import RegisterScreen from "../screen/Register/RegisterScreen";
+import SplashScreen from "../screen/Splash/SplashScreen";
+import TermsScreen from "../screen/Terms/TermsScreen";
+import WelcomeScreen from "../screen/Welcome/WelcomeScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -63,7 +64,7 @@ function TabNavigation({ route }) {
         >
             <Tab.Screen name="Home">{(props) => <HomeScreen {...props} name={route.params?.name} />}</Tab.Screen>
             <Tab.Screen name="Equipment" component={EquipmentScreen} />
-            <Tab.Screen name="Cart" component={OrderScreen} />
+            <Tab.Screen name="Cart" component={CartScreen} />
             <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
     );
@@ -80,6 +81,7 @@ function StackNavigation() {
                 <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="Terms" component={TermsScreen} />
                 <Stack.Screen name="TabHome" component={TabNavigation} />
+                <Stack.Screen name="EquipmentDetail" component={EquipmentDetail} />
                 <Stack.Screen name="LocationDetail" component={LocationDetail} />
                 <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             </Stack.Navigator>
