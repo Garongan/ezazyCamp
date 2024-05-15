@@ -1,82 +1,86 @@
-import { BlurView } from "expo-blur";
-import React from "react";
-import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
-import Carousel from "react-native-snap-carousel";
+import React, { useState } from "react";
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
+import { useWrapText } from "../../utils/useWrapText";
 
-const LocationList = ({ navigation, locations }) => {
+const LocationList = ({ navigation, data, hasNextPage, fetchNextPage, isFetchingNextPage, refetch }) => {
     const { theme } = useTheme();
-    const isCarousel = React.useRef(null);
-    const handleLocationDetail = (item) => {
+    const handleLocationDetail = async (item) => {
         navigation.navigate("LocationDetail", { item: item });
     };
-    
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        async () => await refetch();
+        setRefreshing(false);
+    };
+
     return (
-        <Carousel
-            ref={isCarousel}
-            data={locations.data}
-            sliderWidth={Dimensions.get("window").width}
-            itemWidth={Dimensions.get("window").width - 80}
-            slideStyle={{ flex: 1 }}
+        <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingBottom: 200 }}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             renderItem={({ item }) => (
                 <View
                     style={[
                         {
-                            flexDirection: "column",
+                            flexDirection: "row",
+                            padding: 10,
+                            marginBottom: 10,
                             backgroundColor: theme.colors.background,
-                            marginBottom: 50,
-                            borderRadius: borders.radiusLarge,
+                            borderRadius: borders.radiusMedium,
+                            overflow: "hidden",
+                            margin: 2,
                         },
+                        theme.shadow,
                     ]}
                 >
                     <Image
                         source={{ uri: process.env.EXPO_PUBLIC_BASE_API_URL + item.images[0].url }}
-                        style={{
-                            width: "100%",
-                            height: 350,
-                            borderRadius: borders.radiusLarge,
-                            objectFit: "cover",
-                        }}
+                        style={{ width: 150, height: 150, borderRadius: borders.radiusMedium }}
                         alt={item.images[0].name}
                     />
-                    <View style={{ width: "100%", position: "absolute", top: 140, alignItems: "center" }}>
-                        <BlurView
-                            intensity={30}
-                            experimentalBlurMethod="dimezisBlurView"
-                            tint="dark"
-                            style={{
-                                borderRadius: borders.radiusLarge,
-                                overflow: "hidden",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Text style={[{ flex: 1, padding: 20, color: theme.colors.text }, typography.title]}>
-                                {item.name}
-                            </Text>
-                        </BlurView>
-                    </View>
-                    <View style={{ flex: 1, alignItems: "center" }}>
+                    <View
+                        style={{
+                            flex: 1,
+                            marginLeft: 10,
+                            gap: 10,
+                            justifyContent: "space-between",
+                        }}
+                    >
+                        <Text style={[{ color: theme.colors.text }, typography.title]}>{useWrapText(item.name)}</Text>
                         <TouchableOpacity
                             onPress={() => handleLocationDetail(item)}
                             style={{
-                                position: "absolute",
-                                bottom: -25,
-                                borderRadius: borders.radiusLarge,
+                                borderRadius: borders.radiusMedium,
                                 backgroundColor: theme.colors.primary,
-                                paddingHorizontal: 30,
+                                alignItems: "center",
                                 paddingVertical: 10,
                                 marginTop: 10,
                             }}
                         >
-                            <Text style={[{ color: "#fff8ee" }, typography.title]}>Lihat Dulu Gak Sih</Text>
+                            <Text style={[{ color: "#fff8ee" }, typography.body]}>Lihat Dulu Gak Sih</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             )}
-         />
+            onEndReached={async () => {
+                if (hasNextPage) {
+                    await fetchNextPage();
+                }
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={() =>
+                isFetchingNextPage ? (
+                    <ActivityIndicator size="large" color={theme.colors.primary} style={{ padding: 100 }} />
+                ) : null
+            }
+        />
     );
 };
 

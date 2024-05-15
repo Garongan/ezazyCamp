@@ -1,6 +1,6 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
 import useEquipmentService from "../../service/useEquipmentService";
@@ -12,9 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Controller, useForm } from "react-hook-form";
 import { borders } from "../../shared/constant/borders";
 
-const EquipmentScreen = ({ route }) => {
+const EquipmentScreen = ({ navigation }) => {
     const { theme } = useTheme();
-    const { location } = route.params || "";
     const localStorage = useLocalStorage();
     const [user, setUser] = useState({ id: "", name: "", phone: "", username: "" });
     const equipmentService = useEquipmentService();
@@ -25,15 +24,23 @@ const EquipmentScreen = ({ route }) => {
         },
     });
     const [equipmentName, setEquipmentName] = useState("");
-    const equipments = useQuery({
+    const [location, setLocation] = useState({ id: "", name: "" });
+
+    const equipments = useInfiniteQuery({
         queryKey: ["equipments", equipmentName],
-        queryFn: async () => await equipmentService.getAll({ name: equipmentName }),
-        placeholderData: keepPreviousData,
-        staleTime: 5000,
+        queryFn: async ({ pageParam = 1 }) => await equipmentService.getAll({ name: equipmentName, page: pageParam }),
+        getNextPageParam: (lastPage) => {
+            return lastPage.paging.hasNext ? lastPage.paging.page + 1 : false;
+        },
+        staleTime: Infinity,
     });
 
     const onSubmit = (data) => {
         setEquipmentName(data.search);
+    };
+
+    const handleReset = () => {
+        setEquipmentName("");
         reset();
     };
 
@@ -46,13 +53,24 @@ const EquipmentScreen = ({ route }) => {
                 }
             } catch (error) {}
         };
+        const getLocation = async () => {
+            try {
+                const location = await localStorage.getData("location");
+                if (location) {
+                    setLocation(JSON.parse(location));
+                }
+            } catch (error) {}
+        };
+        getLocation()
         getUser();
     }, []);
 
     return (
         <View style={[theme.padding, { backgroundColor: theme.colors.background, flex: 1 }]}>
             <CustomHeader title="Peralatan">
-                <UserAvatar size={35} name={user.name} bgColor={theme.colors.primary} />
+                <TouchableOpacity onPress={() => navigation.jumpTo("Profile", { screen: "ProfileScreen" })}>
+                    <UserAvatar size={35} name={user.name} bgColor={theme.colors.primary} />
+                </TouchableOpacity>
             </CustomHeader>
             {location && (
                 <View>
@@ -89,11 +107,25 @@ const EquipmentScreen = ({ route }) => {
                         />
                     )}
                 />
+                <Ionicons
+                    style={{ marginHorizontal: 10 }}
+                    name="close-circle-outline"
+                    size={24}
+                    color={theme.colors.text}
+                    onPress={handleReset}
+                />
             </View>
             {equipments.isSuccess ? (
-                <EquipmentList equipments={equipments.data} />
+                <EquipmentList
+                    navigation={navigation}
+                    data={equipments.data?.pages?.flatMap((page) => page.data) ?? []}
+                    hasNextPage={equipments.data.pages[equipments.data.pages.length - 1].paging.hasNext}
+                    refetch={equipments.refetch}
+                    fetchNextPage={equipments.fetchNextPage}
+                    isFetchingNextPage={equipments.isFetchingNextPage}
+                />
             ) : (
-                <Text style={[typography.title, { color: "#fff8ee", marginVertical: 30 }]}>Loading...</Text>
+                <ActivityIndicator size="large" color={theme.colors.primary} style={{ padding: 100 }} />
             )}
         </View>
     );
