@@ -31,7 +31,7 @@ const CartScreen = ({ navigation }) => {
             equipmentId: id,
             quantity: qty + 1,
         };
-        await useCartService()
+        await cartService
             .updateQty(user.id, payload)
             .then(() => queryClient.invalidateQueries({ queryKey: ["carts"] }));
     };
@@ -41,7 +41,7 @@ const CartScreen = ({ navigation }) => {
             equipmentId: id,
             quantity: qty - 1,
         };
-        await useCartService()
+        await cartService
             .updateQty(user.id, payload)
             .then(() => queryClient.invalidateQueries({ queryKey: ["carts"] }));
     };
@@ -53,22 +53,32 @@ const CartScreen = ({ navigation }) => {
                 if (user) {
                     setUser(JSON.parse(user));
                 }
-            } catch (error) {}
+            } catch (error) {
+                console.error("Failed to load user:", error);
+            }
         };
         getUser();
+    }, []);
+
+    useEffect(() => {
         if (cart.isSuccess) {
             setSubTotal(cart.data?.data.reduce((acc, item) => acc + item.equipment.price * item.quantity, 0));
         }
+    }, [cart.isSuccess, cart.data]);
+
+    useEffect(() => {
         const getLocation = async () => {
             try {
                 const location = await localStorage.getData("location");
                 if (location) {
                     setLocation(JSON.parse(location));
                 }
-            } catch (error) {}
+            } catch (error) {
+                console.error("Failed to load location:", error);
+            }
         };
         getLocation();
-    }, [cart.isSuccess, cart.data, localStorage]);
+    }, []);
 
     return (
         <View style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
@@ -78,7 +88,7 @@ const CartScreen = ({ navigation }) => {
             {location && (
                 <View>
                     <Text style={[typography.title, { color: theme.colors.text, marginBottom: 10 }]}>
-                        Lokasi: {location.name}
+                        Lokasi: {location.name ? location.name : "Silahkan pilih lokasi"}
                     </Text>
                 </View>
             )}
@@ -117,13 +127,13 @@ const CartScreen = ({ navigation }) => {
                                             <Text style={{ marginRight: 30, color: theme.colors.text }}>Qty</Text>
                                             <View style={{ gap: 10, flexDirection: "row", alignItems: "center" }}>
                                                 <TouchableOpacity
-                                                    onPress={() => handleDecreaseQty(item.equipment.id, item.quantity)}
+                                                    onPress={async () => await handleDecreaseQty(item.equipment.id, item.quantity)}
                                                 >
                                                     <AntDesign name="minuscircle" size={24} color={theme.colors.text} />
                                                 </TouchableOpacity>
                                                 <Text style={{ color: theme.colors.text }}>{item.quantity}</Text>
                                                 <TouchableOpacity
-                                                    onPress={() => handleAddQty(item.equipment.id, item.quantity)}
+                                                    onPress={async () => await handleAddQty(item.equipment.id, item.quantity)}
                                                 >
                                                     <AntDesign name="pluscircle" size={24} color={theme.colors.text} />
                                                 </TouchableOpacity>

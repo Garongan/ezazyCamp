@@ -53,16 +53,21 @@ const EquipmentScreen = ({ navigation }) => {
                 }
             } catch (error) {}
         };
+        getUser();
+    }, []);
+
+    useEffect(() => {
         const getLocation = async () => {
             try {
                 const location = await localStorage.getData("location");
                 if (location) {
                     setLocation(JSON.parse(location));
                 }
-            } catch (error) {}
+            } catch (error) {
+                console.log(error);
+            }
         };
-        getLocation()
-        getUser();
+        getLocation();
     }, []);
 
     return (
@@ -75,7 +80,7 @@ const EquipmentScreen = ({ navigation }) => {
             {location && (
                 <View>
                     <Text style={[typography.title, { color: theme.colors.text, marginBottom: 10 }]}>
-                        Lokasi: {location.name}
+                        Lokasi: {location.name ? location.name : "Silahkan pilih lokasi"}
                     </Text>
                 </View>
             )}
