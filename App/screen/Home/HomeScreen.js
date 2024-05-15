@@ -5,7 +5,6 @@ import { Controller, useForm } from "react-hook-form";
 import {
     ActivityIndicator,
     Keyboard,
-    Pressable,
     Text,
     TextInput,
     TouchableOpacity,
@@ -50,7 +49,7 @@ const HomeScreen = ({ navigation, name }) => {
 
     return (
         <View style={[ theme.padding, { backgroundColor: theme.colors.background, flex: 1 } ]}>
-            <Pressable onPress={Keyboard.dismiss}>
+            <View onPress={Keyboard.dismiss}>
                 <CustomHeader title="Eazy Camp" style={{ color: theme.colors.text }}>
                     <TouchableOpacity onPress={() => navigation.jumpTo("Profile", { screen: "ProfileScreen" })}>
                         <UserAvatar size={35} name={name} bgColor={theme.colors.primary}/>
@@ -113,7 +112,7 @@ const HomeScreen = ({ navigation, name }) => {
                 ) : (
                     <ActivityIndicator size="large" color={theme.colors.primary} style={{ padding: 100 }}/>
                 )}
-            </Pressable>
+            </View>
         </View>
     );
 };

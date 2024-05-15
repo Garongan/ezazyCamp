@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { CommonActions } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import { CommonActions, useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import UserAvatar from "react-native-user-avatar";
@@ -59,17 +59,23 @@ const ProfileScreen = ({ navigation }) => {
         navigation.dispatch(resultAction);
     };
 
-    useEffect(() => {
-        const getUser = async () => {
-            try {
-                const user = await localStorage.getData("user");
-                if (user) {
-                    setUser(JSON.parse(user));
-                }
-            } catch (error) {}
-        };
-        getUser();
-    }, []);
+    const getUser = useCallback(async () => {
+        try {
+            const user = await localStorage.getData("user");
+            if (user) {
+                setUser(JSON.parse(user));
+            }
+        } catch (error) {
+            console.error("Failed to load user:", error);
+        }
+    }, [localStorage]);
+
+    useFocusEffect(
+        useCallback(() => {
+            getUser();
+        }, [getUser])
+    );
+
     return (
         <View style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
             <View

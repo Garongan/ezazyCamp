@@ -7,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { Appearance } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
+import CartScreen from "../screen/Cart/CartScreen";
 import EquipmentDetail from "../screen/Equiptment/EquipmentDetail";
 import EquipmentScreen from "../screen/Equiptment/EquipmentScreen";
 import HomeScreen from "../screen/Home/HomeScreen";
@@ -18,7 +19,6 @@ import RegisterScreen from "../screen/Register/RegisterScreen";
 import SplashScreen from "../screen/Splash/SplashScreen";
 import TermsScreen from "../screen/Terms/TermsScreen";
 import WelcomeScreen from "../screen/Welcome/WelcomeScreen";
-import CartScreen from "../screen/Cart/CartScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

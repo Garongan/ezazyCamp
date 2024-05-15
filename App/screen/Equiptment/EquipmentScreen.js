@@ -1,5 +1,5 @@
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
@@ -11,6 +11,7 @@ import { typography } from "../../shared/constant/typography";
 import { Ionicons } from "@expo/vector-icons";
 import { Controller, useForm } from "react-hook-form";
 import { borders } from "../../shared/constant/borders";
+import { useFocusEffect } from "@react-navigation/native";
 
 const EquipmentScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -56,19 +57,22 @@ const EquipmentScreen = ({ navigation }) => {
         getUser();
     }, []);
 
-    useEffect(() => {
-        const getLocation = async () => {
-            try {
-                const location = await localStorage.getData("location");
-                if (location) {
-                    setLocation(JSON.parse(location));
-                }
-            } catch (error) {
-                console.log(error);
+    const getLocation = useCallback(async () => {
+        try {
+            const location = await localStorage.getData("location");
+            if (location) {
+                setLocation(JSON.parse(location));
             }
-        };
-        getLocation();
-    }, []);
+        } catch (error) {
+            console.log(error);
+        }
+    });
+
+    useFocusEffect(
+        useCallback(() => {
+            getLocation();
+        }, [])
+    );
 
     return (
         <View style={[theme.padding, { backgroundColor: theme.colors.background, flex: 1 }]}>
