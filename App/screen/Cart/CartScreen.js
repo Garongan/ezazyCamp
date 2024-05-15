@@ -8,12 +8,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
-    Button,
     Image,
     Platform,
     ScrollView,
     Text,
-    Touchable,
+    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -26,6 +25,7 @@ import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import { useCurrency } from "../../utils/useCurrency";
 import useLocalStorage from "../../utils/useLocalStorage";
+import useOrderService from "../../service/useOrderService";
 
 const paymentMethods = [
     { value: "credit_card", label: "Kartu Kredit" },
@@ -61,9 +61,13 @@ const CartScreen = ({ navigation }) => {
     const [show, setShow] = useState(false);
     const [guides, setGuides] = useState([]);
     const guidesService = useGetGuideService();
-    const [selectedPaymentType, setSelectedPaymentType] = useState("");
+    const [selectedPaymentType, setSelectedPaymentType] = useState("CASH");
     const [selectedGuide, setSelectedGuide] = useState("");
     const [guaranteeImage, setGuaranteeImage] = useState(null);
+    const [selectedOrderType, setSelectedOrderType] = useState("PICKUP");
+    const [day, setDay] = useState(1);
+    const orderService = useOrderService();
+    const [address, setAddress] = useState("");
 
     const cart = useQuery({
         queryKey: ["carts"],
@@ -91,7 +95,33 @@ const CartScreen = ({ navigation }) => {
     };
 
     const handleOrder = async () => {
-        console.log("Order");
+        console.log();
+        if (user.id !== "" && location.id !== "" && cart.data.data !== undefined && guaranteeImage !== null) {
+            const order = {
+                customerId: user.id,
+                guideId: selectedGuide,
+                locationId: location.id,
+                date: date,
+                day: day,
+                orderEquipmentRequests: cart.data.data.map((item) => ({
+                    equipmentId: item.equipment.id,
+                    quantity: item.quantity,
+                })),
+                orderType: selectedOrderType,
+                paymentType: selectedPaymentType,
+            };
+
+            const formData = new FormData();
+            formData.append("order", JSON.stringify(order));
+            formData.append("guarantee", guaranteeImage);
+            try {
+                await orderService
+                    .createNewOrder(formData)
+                    .then(() => navigation.jumpTo("Profile", { screen: "ProfileScreen" }));
+            } catch (error) {
+                Alert.alert("Failed to create order:", error.message);
+            }
+        }
     };
 
     const onChangeDate = (event, selectedDate) => {
@@ -122,8 +152,6 @@ const CartScreen = ({ navigation }) => {
             aspect: [4, 3],
             quality: 1,
         });
-
-        console.log(result);
 
         if (!result.canceled) {
             setGuaranteeImage(result.assets[0].uri);
@@ -161,12 +189,12 @@ const CartScreen = ({ navigation }) => {
             const reduceArray = cart.data?.data.reduce((acc, item) => acc + item.equipment.price * item.quantity, 0);
             const guidePrice = guides?.data.filter((item) => item.id === selectedGuide)[0]?.price;
             if (guidePrice) {
-                setSubTotal(reduceArray + guidePrice);
+                setSubTotal((reduceArray + guidePrice) * day);
             } else {
-                setSubTotal(reduceArray);
+                setSubTotal(reduceArray * day);
             }
         }
-    }, [cart.isSuccess, selectedGuide]);
+    }, [cart.isSuccess, selectedGuide, day]);
 
     useFocusEffect(
         useCallback(() => {
@@ -267,6 +295,49 @@ const CartScreen = ({ navigation }) => {
                         </View>
                         <View>
                             <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
+                                Tipe Pengambilan Barang
+                            </Text>
+                            <View
+                                style={{
+                                    borderRadius: borders.radiusLarge,
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <Picker
+                                    selectedValue={selectedOrderType}
+                                    style={{
+                                        backgroundColor: theme.colors.primary,
+                                        color: "#fff8ee",
+                                    }}
+                                    onValueChange={(itemValue) => setSelectedOrderType(itemValue)}
+                                    dropdownIconColor={"#fff8ee"}
+                                >
+                                    <Picker.Item label="PICKUP" value="PICKUP" />
+                                    <Picker.Item label="SEND" value="SEND" />
+                                </Picker>
+                            </View>
+                        </View>
+                        {selectedOrderType === "SEND" && (
+                            <View>
+                                <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
+                                    Dikirim Ke Alamat Mana
+                                </Text>
+                                <TextInput
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: borders.radiusLarge,
+                                        backgroundColor: theme.colors.primary,
+                                        color: "#fff8ee",
+                                    }}
+                                    placeholder="Alamat Kamu..."
+                                    placeholderTextColor="#fff8ee"
+                                    value={address}
+                                    onChangeText={(text) => setAddress(text)}
+                                />
+                            </View>
+                        )}
+                        <View>
+                            <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
                                 Tanggal Dipakai
                             </Text>
                             <TouchableOpacity
@@ -289,6 +360,24 @@ const CartScreen = ({ navigation }) => {
                                     minimumDate={new Date()}
                                 />
                             )}
+                        </View>
+                        <View>
+                            <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
+                                Berapa Hari Disewa
+                            </Text>
+                            <TextInput
+                                style={{
+                                    padding: 15,
+                                    borderRadius: borders.radiusLarge,
+                                    backgroundColor: theme.colors.primary,
+                                    color: "#fff8ee",
+                                }}
+                                placeholder="1"
+                                placeholderTextColor="#fff8ee"
+                                value={day.toString()}
+                                onChangeText={(text) => setDay(text)}
+                                keyboardType="numeric"
+                            />
                         </View>
                         <View>
                             <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
