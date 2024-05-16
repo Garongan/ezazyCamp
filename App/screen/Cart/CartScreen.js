@@ -63,7 +63,7 @@ const CartScreen = ({ navigation }) => {
     const guidesService = useGetGuideService();
     const [selectedPaymentType, setSelectedPaymentType] = useState("CASH");
     const [selectedGuide, setSelectedGuide] = useState("");
-    const [guaranteeImage, setGuaranteeImage] = useState(null);
+    const [guaranteeImage, setGuaranteeImage] = useState({ uri: "", name: "", type: "" });
     const [selectedOrderType, setSelectedOrderType] = useState("PICKUP");
     const [day, setDay] = useState(1);
     const orderService = useOrderService();
@@ -96,31 +96,44 @@ const CartScreen = ({ navigation }) => {
 
     const handleOrder = async () => {
         console.log();
-        if (user.id !== "" && location.id !== "" && cart.data.data !== undefined && guaranteeImage !== null) {
+        if (user.id !== "" && location.id !== "" && cart.data.data !== undefined && guaranteeImage.uri !== "") {
             const order = {
                 customerId: user.id,
                 guideId: selectedGuide,
                 locationId: location.id,
                 date: date,
                 day: day,
-                orderEquipmentRequests: cart.data.data.map((item) => ({
-                    equipmentId: item.equipment.id,
-                    quantity: item.quantity,
-                })),
+                orderEquipmentRequests: cart.data.data.map((item) => {
+                    return {
+                        equipmentId: item.equipment.id,
+                        quantity: item.quantity,
+                    };
+                }),
                 orderType: selectedOrderType,
                 paymentType: selectedPaymentType,
             };
-
             const formData = new FormData();
             formData.append("order", JSON.stringify(order));
-            formData.append("guarantee", guaranteeImage);
+            formData.append("guarantee", {
+                uri: guaranteeImage.uri,
+                name: guaranteeImage.name,
+                type: `image/${guaranteeImage.type}`,
+            });
+
             try {
-                await orderService
-                    .createNewOrder(formData)
-                    .then(() => navigation.jumpTo("Profile", { screen: "ProfileScreen" }));
+                await orderService.createNewOrder(formData).then(() => {
+                    queryClient.invalidateQueries({ queryKey: ["carts"] });
+                    localStorage.removeData("location");
+                    cart.data.data.map((item) =>
+                        cartService.updateQty(user.id, { equipmentId: item.equipment.id, quantity: 0 })
+                    );
+                    navigation.jumpTo("Profile", { screen: "ProfileScreen" });
+                });
             } catch (error) {
                 Alert.alert("Failed to create order:", error.message);
             }
+        } else {
+            Alert.alert("Validation Error", "Please fill in all required fields.");
         }
     };
 
@@ -154,7 +167,13 @@ const CartScreen = ({ navigation }) => {
         });
 
         if (!result.canceled) {
-            setGuaranteeImage(result.assets[0].uri);
+            let uriParts = result.assets[0].uri.split(".");
+            let fileType = uriParts[uriParts.length - 1];
+            setGuaranteeImage({
+                uri: result.assets[0].uri,
+                name: result.assets[0].uri.split("/").pop(),
+                type: fileType,
+            });
         }
     };
 
@@ -187,7 +206,7 @@ const CartScreen = ({ navigation }) => {
     useEffect(() => {
         if (cart.isSuccess) {
             const reduceArray = cart.data?.data.reduce((acc, item) => acc + item.equipment.price * item.quantity, 0);
-            const guidePrice = guides?.data.filter((item) => item.id === selectedGuide)[0]?.price;
+            const guidePrice = guides?.data?.filter((item) => item.id === selectedGuide)[0]?.price;
             if (guidePrice) {
                 setSubTotal((reduceArray + guidePrice) * day);
             } else {
@@ -399,7 +418,7 @@ const CartScreen = ({ navigation }) => {
                                     dropdownIconColor={"#fff8ee"}
                                 >
                                     <Picker.Item label="No Guide" value={""} />
-                                    {guides &&
+                                    {guides.data &&
                                         guides.data.map((item) => (
                                             <Picker.Item label={item.name} value={item.id} key={item.id} />
                                         ))}
@@ -427,9 +446,9 @@ const CartScreen = ({ navigation }) => {
                                 >
                                     <Text style={{ color: "#fff8ee" }}>Silahkan Pilih KTP, SIM, atau ID Card</Text>
                                 </TouchableOpacity>
-                                {guaranteeImage && (
+                                {guaranteeImage.uri !== "" && (
                                     <Image
-                                        source={{ uri: guaranteeImage }}
+                                        source={{ uri: guaranteeImage.uri }}
                                         style={{
                                             height: 400,
                                             width: "100%",
