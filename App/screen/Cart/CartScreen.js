@@ -28,25 +28,25 @@ import useLocalStorage from "../../utils/useLocalStorage";
 import useOrderService from "../../service/useOrderService";
 
 const paymentMethods = [
-    { value: "credit_card", label: "Kartu Kredit" },
-    { value: "cimb_clicks", label: "CIMB Clicks" },
-    { value: "bca_klikbca", label: "BCA KlikBCA" },
-    { value: "bca_klikpay", label: "BCA KlikPay" },
-    { value: "bri_epay", label: "BRI Epay" },
-    { value: "echannel", label: "E-channel" },
-    { value: "permata_va", label: "Permata Virtual Account" },
-    { value: "bca_va", label: "BCA Virtual Account" },
-    { value: "bni_va", label: "BNI Virtual Account" },
-    { value: "bri_va", label: "BRI Virtual Account" },
-    { value: "cimb_va", label: "CIMB Virtual Account" },
-    { value: "other_va", label: "Virtual Account Lainnya" },
-    { value: "gopay", label: "GoPay" },
-    { value: "indomaret", label: "Indomaret" },
-    { value: "danamon_online", label: "Danamon Online" },
-    { value: "akulaku", label: "Akulaku" },
-    { value: "shopeepay", label: "ShopeePay" },
-    { value: "kredivo", label: "Kredivo" },
-    { value: "uob_ezpay", label: "UOB EZPay" },
+    { value: "TRANSFER", label: "Kartu Kredit" },
+    { value: "TRANSFER", label: "CIMB Clicks" },
+    { value: "TRANSFER", label: "BCA KlikBCA" },
+    { value: "TRANSFER", label: "BCA KlikPay" },
+    { value: "TRANSFER", label: "BRI Epay" },
+    { value: "TRANSFER", label: "E-channel" },
+    { value: "TRANSFER", label: "Permata Virtual Account" },
+    { value: "TRANSFER", label: "BCA Virtual Account" },
+    { value: "TRANSFER", label: "BNI Virtual Account" },
+    { value: "TRANSFER", label: "BRI Virtual Account" },
+    { value: "TRANSFER", label: "CIMB Virtual Account" },
+    { value: "TRANSFER", label: "Virtual Account Lainnya" },
+    { value: "TRANSFER", label: "GoPay" },
+    { value: "TRANSFER", label: "Indomaret" },
+    { value: "TRANSFER", label: "Danamon Online" },
+    { value: "TRANSFER", label: "Akulaku" },
+    { value: "TRANSFER", label: "ShopeePay" },
+    { value: "TRANSFER", label: "Kredivo" },
+    { value: "TRANSFER", label: "UOB EZPay" },
 ];
 
 const CartScreen = ({ navigation }) => {
@@ -95,14 +95,12 @@ const CartScreen = ({ navigation }) => {
     };
 
     const handleOrder = async () => {
-        console.log();
         if (user.id !== "" && location.id !== "" && cart.data.data !== undefined && guaranteeImage.uri !== "") {
             const order = {
                 customerId: user.id,
-                guideId: selectedGuide,
                 locationId: location.id,
-                date: date,
-                day: day,
+                date: date.toISOString().split("T")[0],
+                day: parseInt(day),
                 orderEquipmentRequests: cart.data.data.map((item) => {
                     return {
                         equipmentId: item.equipment.id,
@@ -112,17 +110,21 @@ const CartScreen = ({ navigation }) => {
                 orderType: selectedOrderType,
                 paymentType: selectedPaymentType,
             };
+            if (selectedGuide !== "") {
+                order["guideId"] = selectedGuide;
+            }
             const formData = new FormData();
             formData.append("order", JSON.stringify(order));
             formData.append("guarantee", {
-                uri: guaranteeImage.uri,
                 name: guaranteeImage.name,
                 type: `image/${guaranteeImage.type}`,
+                uri: Platform.OS === "android" ? guaranteeImage.uri : guaranteeImage.uri.replace("file://", ""),
             });
 
             try {
                 await orderService.createNewOrder(formData).then(() => {
                     queryClient.invalidateQueries({ queryKey: ["carts"] });
+                    setGuaranteeImage(null);
                     localStorage.removeData("location");
                     cart.data.data.map((item) =>
                         cartService.updateQty(user.id, { equipmentId: item.equipment.id, quantity: 0 })

@@ -1,54 +1,27 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { CommonActions, useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import useLocalStorage from "../../utils/useLocalStorage";
-
-const ACTIVEORDERS = [
-    {
-        id: "1",
-        date: "2024-05-07",
-        lokasi: "Gunung Merapi",
-    },
-    {
-        id: "2",
-        date: "2024-05-08",
-        lokasi: "Gunung Bromo",
-    },
-    {
-        id: "3",
-        date: "2024-05-09",
-        lokasi: "Gunung Rinjani",
-    },
-];
-
-const ORDERSHISTORY = [
-    {
-        id: "101",
-        date: "2024-04-01",
-        lokasi: "Gunung Semeru",
-    },
-    {
-        id: "102",
-        date: "2024-04-10",
-        lokasi: "Gunung Slamet",
-    },
-    {
-        id: "103",
-        date: "2024-04-15",
-        lokasi: "Gunung Kerinci",
-    },
-];
+import { useQuery } from "@tanstack/react-query";
+import useOrderService from "../../service/useOrderService";
+import Collapsible from "react-native-collapsible";
+import Accordion from "react-native-collapsible/Accordion";
+import OrderList from "./OrderList";
 
 const ProfileScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const localStorage = useLocalStorage();
     const [user, setUser] = useState({ id: "", name: "", phone: "", username: "" });
+    const [activeOrders, setActiveOrders] = useState([]);
+    const [ordersHistory, setOrdersHistory] = useState([]);
+    const orderService = useOrderService();
+
     const handleLogout = async () => {
         const resultAction = CommonActions.reset({
             index: 0,
@@ -59,6 +32,11 @@ const ProfileScreen = ({ navigation }) => {
         navigation.dispatch(resultAction);
     };
 
+    const { data, isSuccess } = useQuery({
+        queryKey: ["orders"],
+        queryFn: async () => await orderService.getOrders(),
+    });
+
     const getUser = useCallback(async () => {
         try {
             const user = await localStorage.getData("user");
@@ -66,18 +44,33 @@ const ProfileScreen = ({ navigation }) => {
                 setUser(JSON.parse(user));
             }
         } catch (error) {
-            console.error("Failed to load user:", error);
+            Alert.alert("Error", error.message);
         }
     }, [localStorage]);
+
+    useEffect(() => {
+        try {
+            if (isSuccess) {
+                setActiveOrders(
+                    data.data
+                        ?.filter((order) => order.orderStatus === "PENDING" || order.orderStatus === "ACTIVE")
+                        .reverse()
+                );
+                setOrdersHistory(data.data?.filter((order) => order.orderStatus === "FINISHED").reverse());
+            }
+        } catch (error) {
+            Alert.alert("Error", error.message);
+        }
+    }, [isSuccess]);
 
     useFocusEffect(
         useCallback(() => {
             getUser();
-        }, [getUser])
+        }, [])
     );
 
     return (
-        <View style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
+        <ScrollView style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
             <View
                 style={{
                     flexDirection: "row",
@@ -134,19 +127,12 @@ const ProfileScreen = ({ navigation }) => {
                     paddingVertical: 10,
                 }}
             >
-                <FlatList
-                    key={(item) => item.id}
-                    data={ACTIVEORDERS}
-                    ListHeaderComponent={() => (
-                        <Text style={[{ color: theme.colors.text }, typography.title]}>Pesanan Aktif</Text>
-                    )}
-                    renderItem={({ item }) => (
-                        <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 }}>
-                            <Text style={{ color: theme.colors.text }}>{item.date}</Text>
-                            <Text style={{ color: theme.colors.text }}>{item.lokasi}</Text>
-                        </View>
-                    )}
-                />
+                <Text style={[{ color: theme.colors.text }, typography.title]}>Pesanan Aktif</Text>
+                {isSuccess ? (
+                    <OrderList orders={activeOrders} />
+                ) : (
+                    <ActivityIndicator size="large" color={theme.colors.primary} style={{ padding: 100 }} />
+                )}
             </View>
             <View
                 style={{
@@ -157,25 +143,19 @@ const ProfileScreen = ({ navigation }) => {
                     paddingVertical: 10,
                 }}
             >
-                <FlatList
-                    key={(item) => item.id}
-                    data={ORDERSHISTORY}
-                    ListHeaderComponent={() => (
-                        <Text style={[{ color: theme.colors.text }, typography.title]}>Riwayat Pesanan</Text>
-                    )}
-                    renderItem={({ item }) => (
-                        <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 }}>
-                            <Text style={{ color: theme.colors.text }}>{item.date}</Text>
-                            <Text style={{ color: theme.colors.text }}>{item.lokasi}</Text>
-                        </View>
-                    )}
-                />
+                <Text style={[{ color: theme.colors.text }, typography.title]}>Riwayat Pesanan</Text>
+                {isSuccess ? (
+                    <OrderList orders={ordersHistory} />
+                ) : (
+                    <ActivityIndicator size="large" color={theme.colors.primary} style={{ padding: 100 }} />
+                )}
             </View>
             <TouchableOpacity
                 style={{
                     backgroundColor: theme.colors.primary,
                     borderRadius: borders.radiusLarge,
                     marginTop: 10,
+                    marginBottom: 20,
                     paddingHorizontal: 20,
                     flexDirection: "row",
                     paddingVertical: 10,
@@ -187,7 +167,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={{ color: "#fff8ee", marginRight: 20 }}>Logout</Text>
                 <MaterialIcons name="logout" size={24} color="#fff8ee" />
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 };
 

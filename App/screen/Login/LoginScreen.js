@@ -4,6 +4,7 @@ import { CommonActions } from "@react-navigation/native";
 import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+    Alert,
     Image,
     Keyboard,
     ScrollView,
@@ -61,7 +62,7 @@ const LoginScreen = ({ navigation }) => {
                 clearForm();
             }
         } catch (error) {
-            throw new Error("Gagal Login");
+            Alert.alert("Gagal Login", error.message);
         }
         try {
             const customer = await customerService.getByUsername(data.username);
@@ -85,7 +86,7 @@ const LoginScreen = ({ navigation }) => {
                 }
             });
         } catch (error) {
-            throw new Error("Gagal Mengambil Data Customer");
+            Alert.alert("Error", "Gagal mengambil data customer");
         }
     };
 
@@ -100,7 +101,7 @@ const LoginScreen = ({ navigation }) => {
             ]}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ justifyContent: "center", alignItems: "center" }}>
                     <Image
                         style={{ objectFit: "contain", height: 300 }}
                         source={require("../../../assets/eazy-camp.png")}
