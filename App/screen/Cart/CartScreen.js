@@ -8,12 +8,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
-    Button,
     Image,
     Platform,
     ScrollView,
     Text,
-    Touchable,
+    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -26,27 +25,28 @@ import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import { useCurrency } from "../../utils/useCurrency";
 import useLocalStorage from "../../utils/useLocalStorage";
+import useOrderService from "../../service/useOrderService";
 
 const paymentMethods = [
-    { value: "credit_card", label: "Kartu Kredit" },
-    { value: "cimb_clicks", label: "CIMB Clicks" },
-    { value: "bca_klikbca", label: "BCA KlikBCA" },
-    { value: "bca_klikpay", label: "BCA KlikPay" },
-    { value: "bri_epay", label: "BRI Epay" },
-    { value: "echannel", label: "E-channel" },
-    { value: "permata_va", label: "Permata Virtual Account" },
-    { value: "bca_va", label: "BCA Virtual Account" },
-    { value: "bni_va", label: "BNI Virtual Account" },
-    { value: "bri_va", label: "BRI Virtual Account" },
-    { value: "cimb_va", label: "CIMB Virtual Account" },
-    { value: "other_va", label: "Virtual Account Lainnya" },
-    { value: "gopay", label: "GoPay" },
-    { value: "indomaret", label: "Indomaret" },
-    { value: "danamon_online", label: "Danamon Online" },
-    { value: "akulaku", label: "Akulaku" },
-    { value: "shopeepay", label: "ShopeePay" },
-    { value: "kredivo", label: "Kredivo" },
-    { value: "uob_ezpay", label: "UOB EZPay" },
+    { value: "TRANSFER", label: "Kartu Kredit" },
+    { value: "TRANSFER", label: "CIMB Clicks" },
+    { value: "TRANSFER", label: "BCA KlikBCA" },
+    { value: "TRANSFER", label: "BCA KlikPay" },
+    { value: "TRANSFER", label: "BRI Epay" },
+    { value: "TRANSFER", label: "E-channel" },
+    { value: "TRANSFER", label: "Permata Virtual Account" },
+    { value: "TRANSFER", label: "BCA Virtual Account" },
+    { value: "TRANSFER", label: "BNI Virtual Account" },
+    { value: "TRANSFER", label: "BRI Virtual Account" },
+    { value: "TRANSFER", label: "CIMB Virtual Account" },
+    { value: "TRANSFER", label: "Virtual Account Lainnya" },
+    { value: "TRANSFER", label: "GoPay" },
+    { value: "TRANSFER", label: "Indomaret" },
+    { value: "TRANSFER", label: "Danamon Online" },
+    { value: "TRANSFER", label: "Akulaku" },
+    { value: "TRANSFER", label: "ShopeePay" },
+    { value: "TRANSFER", label: "Kredivo" },
+    { value: "TRANSFER", label: "UOB EZPay" },
 ];
 
 const CartScreen = ({ navigation }) => {
@@ -61,9 +61,13 @@ const CartScreen = ({ navigation }) => {
     const [show, setShow] = useState(false);
     const [guides, setGuides] = useState([]);
     const guidesService = useGetGuideService();
-    const [selectedPaymentType, setSelectedPaymentType] = useState("");
+    const [selectedPaymentType, setSelectedPaymentType] = useState("CASH");
     const [selectedGuide, setSelectedGuide] = useState("");
-    const [guaranteeImage, setGuaranteeImage] = useState(null);
+    const [guaranteeImage, setGuaranteeImage] = useState({ uri: "", name: "", type: "" });
+    const [selectedOrderType, setSelectedOrderType] = useState("PICKUP");
+    const [day, setDay] = useState(1);
+    const orderService = useOrderService();
+    const [address, setAddress] = useState("");
 
     const cart = useQuery({
         queryKey: ["carts"],
@@ -91,7 +95,48 @@ const CartScreen = ({ navigation }) => {
     };
 
     const handleOrder = async () => {
-        console.log("Order");
+        if (user.id !== "" && location.id !== "" && cart.data.data !== undefined && guaranteeImage.uri !== "") {
+            const order = {
+                customerId: user.id,
+                locationId: location.id,
+                date: date.toISOString().split("T")[0],
+                day: parseInt(day),
+                orderEquipmentRequests: cart.data.data.map((item) => {
+                    return {
+                        equipmentId: item.equipment.id,
+                        quantity: item.quantity,
+                    };
+                }),
+                orderType: selectedOrderType,
+                paymentType: selectedPaymentType,
+            };
+            if (selectedGuide !== "") {
+                order["guideId"] = selectedGuide;
+            }
+            const formData = new FormData();
+            formData.append("order", JSON.stringify(order));
+            formData.append("guarantee", {
+                name: guaranteeImage.name,
+                type: `image/${guaranteeImage.type}`,
+                uri: Platform.OS === "android" ? guaranteeImage.uri : guaranteeImage.uri.replace("file://", ""),
+            });
+
+            try {
+                await orderService.createNewOrder(formData).then(() => {
+                    queryClient.invalidateQueries({ queryKey: ["carts"] });
+                    setGuaranteeImage(null);
+                    localStorage.removeData("location");
+                    cart.data.data.map((item) =>
+                        cartService.updateQty(user.id, { equipmentId: item.equipment.id, quantity: 0 })
+                    );
+                    navigation.jumpTo("Profile", { screen: "ProfileScreen" });
+                });
+            } catch (error) {
+                Alert.alert("Failed to create order:", error.message);
+            }
+        } else {
+            Alert.alert("Validation Error", "Please fill in all required fields.");
+        }
     };
 
     const onChangeDate = (event, selectedDate) => {
@@ -123,10 +168,14 @@ const CartScreen = ({ navigation }) => {
             quality: 1,
         });
 
-        console.log(result);
-
         if (!result.canceled) {
-            setGuaranteeImage(result.assets[0].uri);
+            let uriParts = result.assets[0].uri.split(".");
+            let fileType = uriParts[uriParts.length - 1];
+            setGuaranteeImage({
+                uri: result.assets[0].uri,
+                name: result.assets[0].uri.split("/").pop(),
+                type: fileType,
+            });
         }
     };
 
@@ -159,14 +208,14 @@ const CartScreen = ({ navigation }) => {
     useEffect(() => {
         if (cart.isSuccess) {
             const reduceArray = cart.data?.data.reduce((acc, item) => acc + item.equipment.price * item.quantity, 0);
-            const guidePrice = guides?.data.filter((item) => item.id === selectedGuide)[0]?.price;
+            const guidePrice = guides?.data?.filter((item) => item.id === selectedGuide)[0]?.price;
             if (guidePrice) {
-                setSubTotal(reduceArray + guidePrice);
+                setSubTotal((reduceArray + guidePrice) * day);
             } else {
-                setSubTotal(reduceArray);
+                setSubTotal(reduceArray * day);
             }
         }
-    }, [cart.isSuccess, selectedGuide]);
+    }, [cart.isSuccess, selectedGuide, day]);
 
     useFocusEffect(
         useCallback(() => {
@@ -267,6 +316,49 @@ const CartScreen = ({ navigation }) => {
                         </View>
                         <View>
                             <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
+                                Tipe Pengambilan Barang
+                            </Text>
+                            <View
+                                style={{
+                                    borderRadius: borders.radiusLarge,
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <Picker
+                                    selectedValue={selectedOrderType}
+                                    style={{
+                                        backgroundColor: theme.colors.primary,
+                                        color: "#fff8ee",
+                                    }}
+                                    onValueChange={(itemValue) => setSelectedOrderType(itemValue)}
+                                    dropdownIconColor={"#fff8ee"}
+                                >
+                                    <Picker.Item label="PICKUP" value="PICKUP" />
+                                    <Picker.Item label="SEND" value="SEND" />
+                                </Picker>
+                            </View>
+                        </View>
+                        {selectedOrderType === "SEND" && (
+                            <View>
+                                <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
+                                    Dikirim Ke Alamat Mana
+                                </Text>
+                                <TextInput
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: borders.radiusLarge,
+                                        backgroundColor: theme.colors.primary,
+                                        color: "#fff8ee",
+                                    }}
+                                    placeholder="Alamat Kamu..."
+                                    placeholderTextColor="#fff8ee"
+                                    value={address}
+                                    onChangeText={(text) => setAddress(text)}
+                                />
+                            </View>
+                        )}
+                        <View>
+                            <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
                                 Tanggal Dipakai
                             </Text>
                             <TouchableOpacity
@@ -292,6 +384,24 @@ const CartScreen = ({ navigation }) => {
                         </View>
                         <View>
                             <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
+                                Berapa Hari Disewa
+                            </Text>
+                            <TextInput
+                                style={{
+                                    padding: 15,
+                                    borderRadius: borders.radiusLarge,
+                                    backgroundColor: theme.colors.primary,
+                                    color: "#fff8ee",
+                                }}
+                                placeholder="1"
+                                placeholderTextColor="#fff8ee"
+                                value={day.toString()}
+                                onChangeText={(text) => setDay(text)}
+                                keyboardType="numeric"
+                            />
+                        </View>
+                        <View>
+                            <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
                                 Pilih Guide
                             </Text>
                             <View
@@ -310,7 +420,7 @@ const CartScreen = ({ navigation }) => {
                                     dropdownIconColor={"#fff8ee"}
                                 >
                                     <Picker.Item label="No Guide" value={""} />
-                                    {guides &&
+                                    {guides.data &&
                                         guides.data.map((item) => (
                                             <Picker.Item label={item.name} value={item.id} key={item.id} />
                                         ))}
@@ -338,9 +448,9 @@ const CartScreen = ({ navigation }) => {
                                 >
                                     <Text style={{ color: "#fff8ee" }}>Silahkan Pilih KTP, SIM, atau ID Card</Text>
                                 </TouchableOpacity>
-                                {guaranteeImage && (
+                                {guaranteeImage.uri !== "" && (
                                     <Image
-                                        source={{ uri: guaranteeImage }}
+                                        source={{ uri: guaranteeImage.uri }}
                                         style={{
                                             height: 400,
                                             width: "100%",
