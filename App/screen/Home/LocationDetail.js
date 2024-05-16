@@ -15,7 +15,7 @@ const LocationDetail = ({ navigation, route }) => {
 
     const handleAddLocation = async () => {
         await localStorage.setData("location", JSON.stringify({ id: item.id, name: item.name }));
-        navigation.goBack();
+        navigation.navigate("Equipment")
     };
 
     useEffect(() => {
