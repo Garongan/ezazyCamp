@@ -28,11 +28,11 @@ const OrderList = ({ orders }) => {
                     }}
                 >
                     <View style={{ flexDirection: "row", gap: 10 }}>
-                        <Text style={{ color: "#fff8ee" }}>{item.date}</Text>
-                        <Text style={{ color: "#fff8ee" }}>{item.location.name}</Text>
+                        <Text style={{ color: theme.colors.text }}>{item.date}</Text>
+                        <Text style={{ color: theme.colors.text }}>{item.location.name}</Text>
                     </View>
                     <View style={{ flexDirection: "row", gap: 10 }}>
-                        <Text style={{ color: "#fff8ee" }}>{item.orderStatus}</Text>
+                        <Text style={{ color: theme.colors.text }}>{item.orderStatus}</Text>
                         <Ionicons
                             name={`chevron-${selectedItem === item && modalVisible ? "up" : "down"}`}
                             size={24}
