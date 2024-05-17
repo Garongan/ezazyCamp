@@ -83,6 +83,24 @@ const OrderList = ({ orders }) => {
                                 </View>
                             )}
 
+                            {selectedItem?.location.nearestStoreAddress && (
+                                <View>
+                                    <Text style={[{ color: "#fff8ee" }, typography.body]}>Pickup in:</Text>
+                                    <Text
+                                        style={{
+                                            color: theme.colors.text,
+                                            borderWidth: 1,
+                                            borderColor: "#fff8ee",
+                                            marginTop: 10,
+                                            padding: 5,
+                                            borderRadius: borders.radiusMedium,
+                                        }}
+                                    >
+                                        {selectedItem.location.nearestStoreAddress}
+                                    </Text>
+                                </View>
+                            )}
+
                             {selectedItem?.paymentType && (
                                 <View>
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Payment type:</Text>
@@ -100,6 +118,7 @@ const OrderList = ({ orders }) => {
                                     </Text>
                                 </View>
                             )}
+
                             {selectedItem?.guide && (
                                 <View>
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Guide:</Text>
