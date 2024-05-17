@@ -125,13 +125,15 @@ const CartScreen = ({ navigation }) => {
             });
 
             try {
-                await orderService.createNewOrder(formData).then(() => {
-                    queryClient.invalidateQueries({ queryKey: ["carts"] });
+                await orderService.createNewOrder(formData).then(async () => {
                     setGuaranteeImage({ uri: "", name: "", type: "" });
                     localStorage.removeData("location");
-                    cart.data.data.map((item) =>
-                        cartService.updateQty(user.id, { equipmentId: item.equipment.id, quantity: 0 })
+                    setLocation({ id: "", name: "" });
+                    cart.data.data.map(
+                        async (item) =>
+                            await cartService.updateQty(user.id, { equipmentId: item.equipment.id, quantity: 0 })
                     );
+                    await queryClient.invalidateQueries({ queryKey: ["carts"] });
                     navigation.jumpTo("Profile", { screen: "ProfileScreen" });
                 });
             } catch (error) {
@@ -194,6 +196,12 @@ const CartScreen = ({ navigation }) => {
         }
     });
 
+    const onRefresh = useCallback(async () => {
+        await cart.refetch().then(async () => {
+            await queryClient.invalidateQueries({ queryKey: ["carts"] });
+        });
+    }, []);
+
     useEffect(() => {
         const getUser = async () => {
             try {
@@ -223,9 +231,10 @@ const CartScreen = ({ navigation }) => {
     useFocusEffect(
         useCallback(() => {
             getLocation();
+            onRefresh();
         }, [])
     );
-    
+
     return (
         <ScrollView style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
             <CustomHeader title="Keranjang">
@@ -496,9 +505,7 @@ const CartScreen = ({ navigation }) => {
                                     }}
                                 >
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Total</Text>
-                                    <Text style={{ color: "#fff8ee" }}>
-                                        {useCurrency(subTotal * day)}
-                                    </Text>
+                                    <Text style={{ color: "#fff8ee" }}>{useCurrency(subTotal * day)}</Text>
                                 </View>
                             </View>
                             <TouchableOpacity

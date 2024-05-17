@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { CommonActions, useFocusEffect } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -11,7 +11,6 @@ import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import useLocalStorage from "../../utils/useLocalStorage";
 import OrderList from "./OrderList";
-import { set } from "react-hook-form";
 
 const ProfileScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -21,12 +20,16 @@ const ProfileScreen = ({ navigation }) => {
     const [ordersHistory, setOrdersHistory] = useState([]);
     const orderService = useOrderService();
     const [refreshing, setRefreshing] = useState(false);
+    const queryCLient = useQueryClient();
 
-    const onRefresh = useCallback(() => {
+    const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        refetch().then(() => setRefreshing(false));
+        await refetch().then(async () => {
+            await queryCLient.invalidateQueries({ queryKey: ["orders"] });
+            setRefreshing(false);
+        });
     }, []);
-
+    
     const handleLogout = async () => {
         const resultAction = CommonActions.reset({
             index: 0,
@@ -34,6 +37,7 @@ const ProfileScreen = ({ navigation }) => {
         });
         await localStorage.removeData("token");
         await localStorage.removeData("user");
+        await localStorage.removeData("location")
         navigation.dispatch(resultAction);
     };
 
@@ -66,11 +70,12 @@ const ProfileScreen = ({ navigation }) => {
         } catch (error) {
             Alert.alert("Error", error.message);
         }
-    }, [isSuccess]);
+    }, [isSuccess, data]);
 
     useFocusEffect(
         useCallback(() => {
             getUser();
+            onRefresh();
         }, [])
     );
 
