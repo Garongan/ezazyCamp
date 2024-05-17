@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { CommonActions, useFocusEffect } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
@@ -11,6 +11,7 @@ import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import useLocalStorage from "../../utils/useLocalStorage";
 import OrderList from "./OrderList";
+import { set } from "react-hook-form";
 
 const ProfileScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -19,6 +20,12 @@ const ProfileScreen = ({ navigation }) => {
     const [activeOrders, setActiveOrders] = useState([]);
     const [ordersHistory, setOrdersHistory] = useState([]);
     const orderService = useOrderService();
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        refetch().then(() => setRefreshing(false));
+    }, []);
 
     const handleLogout = async () => {
         const resultAction = CommonActions.reset({
@@ -30,7 +37,7 @@ const ProfileScreen = ({ navigation }) => {
         navigation.dispatch(resultAction);
     };
 
-    const { data, isSuccess } = useQuery({
+    const { data, isSuccess, refetch } = useQuery({
         queryKey: ["orders"],
         queryFn: async () => await orderService.getOrders(),
     });
@@ -68,7 +75,10 @@ const ProfileScreen = ({ navigation }) => {
     );
 
     return (
-        <ScrollView style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
+        <ScrollView
+            style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
             <View
                 style={{
                     flexDirection: "row",
