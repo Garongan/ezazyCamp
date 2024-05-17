@@ -11,6 +11,7 @@ import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import useLocalStorage from "../../utils/useLocalStorage";
 import OrderList from "./OrderList";
+import { set } from "react-hook-form";
 
 const ProfileScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -23,7 +24,7 @@ const ProfileScreen = ({ navigation }) => {
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        refetch();
+        refetch().then(() => setRefreshing(false));
     }, []);
 
     const handleLogout = async () => {
