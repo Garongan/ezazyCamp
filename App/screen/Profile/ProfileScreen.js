@@ -1,17 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { CommonActions, useFocusEffect } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import UserAvatar from "react-native-user-avatar";
 import { useTheme } from "../../context/ThemeContext";
+import useOrderService from "../../service/useOrderService";
 import { borders } from "../../shared/constant/borders";
 import { typography } from "../../shared/constant/typography";
 import useLocalStorage from "../../utils/useLocalStorage";
-import { useQuery } from "@tanstack/react-query";
-import useOrderService from "../../service/useOrderService";
-import Collapsible from "react-native-collapsible";
-import Accordion from "react-native-collapsible/Accordion";
 import OrderList from "./OrderList";
 
 const ProfileScreen = ({ navigation }) => {
