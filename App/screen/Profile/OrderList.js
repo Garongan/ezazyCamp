@@ -59,9 +59,9 @@ const OrderList = ({ orders }) => {
                     >
                         <View style={{ gap: 5, marginBottom: 10 }}>
                             <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
-                                <Text style={[{ color: theme.colors.text }, typography.title]}>Detail Order:</Text>
+                                <Text style={[{ color: "#fff8ee" }, typography.title]}>Detail Order:</Text>
                                 <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-                                    <Ionicons name="close-circle-outline" size={30} color={theme.colors.text} />
+                                    <Ionicons name="close-circle-outline" size={30} color={"#fff8ee"} />
                                 </TouchableOpacity>
                             </View>
                             {selectedItem?.payment && (
@@ -83,12 +83,30 @@ const OrderList = ({ orders }) => {
                                 </View>
                             )}
 
+                            {selectedItem?.location.nearestStoreAddress && (
+                                <View>
+                                    <Text style={[{ color: "#fff8ee" }, typography.body]}>Pickup in:</Text>
+                                    <Text
+                                        style={{
+                                            color: "#fff8ee",
+                                            borderWidth: 1,
+                                            borderColor: "#fff8ee",
+                                            marginTop: 10,
+                                            padding: 5,
+                                            borderRadius: borders.radiusMedium,
+                                        }}
+                                    >
+                                        {selectedItem.location.nearestStoreAddress}
+                                    </Text>
+                                </View>
+                            )}
+
                             {selectedItem?.paymentType && (
                                 <View>
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Payment type:</Text>
                                     <Text
                                         style={{
-                                            color: theme.colors.text,
+                                            color: "#fff8ee",
                                             borderWidth: 1,
                                             borderColor: "#fff8ee",
                                             marginTop: 10,
@@ -100,12 +118,13 @@ const OrderList = ({ orders }) => {
                                     </Text>
                                 </View>
                             )}
+
                             {selectedItem?.guide && (
                                 <View>
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Guide:</Text>
                                     <Text
                                         style={{
-                                            color: theme.colors.text,
+                                            color: "#fff8ee",
                                             borderWidth: 1,
                                             borderColor: "#fff8ee",
                                             marginTop: 10,
@@ -122,7 +141,7 @@ const OrderList = ({ orders }) => {
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Order type:</Text>
                                     <Text
                                         style={{
-                                            color: theme.colors.text,
+                                            color: "#fff8ee",
                                             borderWidth: 1,
                                             borderColor: "#fff8ee",
                                             marginTop: 10,
@@ -139,7 +158,7 @@ const OrderList = ({ orders }) => {
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Send to address:</Text>
                                     <Text
                                         style={{
-                                            color: theme.colors.text,
+                                            color: "#fff8ee",
                                             borderWidth: 1,
                                             borderColor: "#fff8ee",
                                             marginTop: 10,
@@ -169,13 +188,13 @@ const OrderList = ({ orders }) => {
                                             }}
                                             key={equipment.id}
                                         >
-                                            <Text style={{ color: theme.colors.text }}>
+                                            <Text style={{ color: "#fff8ee" }}>
                                                 Name: {equipment.equipment.name}
                                             </Text>
-                                            <Text style={{ color: theme.colors.text }}>
+                                            <Text style={{ color: "#fff8ee" }}>
                                                 Price: {equipment.equipment.price}
                                             </Text>
-                                            <Text style={{ color: theme.colors.text }}>
+                                            <Text style={{ color: "#fff8ee" }}>
                                                 Quantity: {equipment.quantity}
                                             </Text>
                                         </View>
