@@ -113,6 +113,9 @@ const CartScreen = ({ navigation }) => {
             if (selectedGuide !== "") {
                 order["guideId"] = selectedGuide;
             }
+            if (address !== "") {
+                order["sentAddress"] = address;
+            }
             const formData = new FormData();
             formData.append("order", JSON.stringify(order));
             formData.append("guarantee", {
@@ -124,7 +127,7 @@ const CartScreen = ({ navigation }) => {
             try {
                 await orderService.createNewOrder(formData).then(() => {
                     queryClient.invalidateQueries({ queryKey: ["carts"] });
-                    setGuaranteeImage(null);
+                    setGuaranteeImage({ uri: "", name: "", type: "" });
                     localStorage.removeData("location");
                     cart.data.data.map((item) =>
                         cartService.updateQty(user.id, { equipmentId: item.equipment.id, quantity: 0 })
@@ -210,19 +213,19 @@ const CartScreen = ({ navigation }) => {
             const reduceArray = cart.data?.data.reduce((acc, item) => acc + item.equipment.price * item.quantity, 0);
             const guidePrice = guides?.data?.filter((item) => item.id === selectedGuide)[0]?.price;
             if (guidePrice) {
-                setSubTotal((reduceArray + guidePrice) * day);
+                setSubTotal(reduceArray + guidePrice);
             } else {
-                setSubTotal(reduceArray * day);
+                setSubTotal(reduceArray);
             }
         }
-    }, [cart.isSuccess, selectedGuide, day]);
+    }, [cart.isSuccess, selectedGuide]);
 
     useFocusEffect(
         useCallback(() => {
             getLocation();
         }, [])
     );
-
+    
     return (
         <ScrollView style={[{ backgroundColor: theme.colors.background, flex: 1 }, theme.padding]}>
             <CustomHeader title="Keranjang">
@@ -334,11 +337,11 @@ const CartScreen = ({ navigation }) => {
                                     dropdownIconColor={"#fff8ee"}
                                 >
                                     <Picker.Item label="PICKUP" value="PICKUP" />
-                                    <Picker.Item label="SEND" value="SEND" />
+                                    <Picker.Item label="SENT" value="SENT" />
                                 </Picker>
                             </View>
                         </View>
-                        {selectedOrderType === "SEND" && (
+                        {selectedOrderType === "SENT" && (
                             <View>
                                 <Text style={[{ color: theme.colors.text, paddingVertical: 10 }, typography.body]}>
                                     Dikirim Ke Alamat Mana
@@ -481,24 +484,10 @@ const CartScreen = ({ navigation }) => {
                                     <Text style={[{ color: "#fff8ee" }]}>{useCurrency(subTotal)}</Text>
                                 </View>
                                 <View
-                                    style={{
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        marginBottom: 10,
-                                    }}
+                                    style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 10 }}
                                 >
-                                    <Text style={[{ color: "#fff8ee" }, typography.body]}>Shipping</Text>
-                                    <Text style={{ color: "#fff8ee" }}>Free</Text>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        marginBottom: 10,
-                                    }}
-                                >
-                                    <Text style={[{ color: "#fff8ee" }, typography.body]}>PPN</Text>
-                                    <Text style={{ color: "#fff8ee" }}>10%</Text>
+                                    <Text style={[{ color: "#fff8ee" }, typography.body]}>Day</Text>
+                                    <Text style={[{ color: "#fff8ee" }]}>{day}</Text>
                                 </View>
                                 <View
                                     style={{
@@ -508,7 +497,7 @@ const CartScreen = ({ navigation }) => {
                                 >
                                     <Text style={[{ color: "#fff8ee" }, typography.body]}>Total</Text>
                                     <Text style={{ color: "#fff8ee" }}>
-                                        {useCurrency(subTotal + 10000 + subTotal * 0.1)}
+                                        {useCurrency(subTotal * day)}
                                     </Text>
                                 </View>
                             </View>
