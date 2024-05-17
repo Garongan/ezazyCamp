@@ -372,7 +372,7 @@ const CartScreen = ({ navigation }) => {
                                     backgroundColor: theme.colors.primary,
                                 }}
                             >
-                                <Text style={{ color: theme.colors.text, fontSize: 15 }}>{date.toDateString()}</Text>
+                                <Text style={{ color: "#fff8ee", fontSize: 15 }}>{date.toDateString()}</Text>
                             </TouchableOpacity>
                             {show && (
                                 <DateTimePicker
