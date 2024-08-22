@@ -9,7 +9,7 @@ function WelcomeScreen({ navigation }) {
     return (
         <View style={{ flex: 1 }}>
             <ImageBackground style={{ height: "100%", width: "100%" }} source={require("../../../assets/welcome.jpg")}>
-                <View style={[{ flex: 1 }, theme.padding]}>
+                <View style={[{ flex: 1, backgroundColor: 'rgba(0,0,0, 0.15)' }, theme.padding]}>
                     <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 50 }}>
                         <Text style={[typography.header, { color: "#fff8ee" }]}>Aku Sudah Disini, Kamu Kapan?</Text>
                         <Text style={[typography.body, { color: "#fff8ee", paddingVertical: 10 }]}>

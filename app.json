@@ -26,10 +26,19 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/eazy-camp.png",
         "backgroundColor": "#fff8ee"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.alvindotri.eazyCamp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "05b9b78c-2bbe-4459-b238-cd3b55e3e599"
+      }
     }
   }
 }
