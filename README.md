@@ -79,3 +79,13 @@ yarn install
 ```
 yarn start
 ```
+
+## ScreenShoot Aplikasi
+![landing page](<WhatsApp Image 2024-08-21 at 16.33.43_847f2bf6.jpg>)
+![login page](<WhatsApp Image 2024-08-21 at 16.33.40_44a2782b.jpg>)
+![home page](<WhatsApp Image 2024-08-21 at 16.33.42_17fca316.jpg>)
+![detail location page](<WhatsApp Image 2024-08-21 at 16.33.41_029691f1.jpg>)
+![profile page](<WhatsApp Image 2024-08-21 at 16.33.41_1bdadd45.jpg>)
+![profile page 1](<WhatsApp Image 2024-08-21 at 16.33.41_2b4b945f.jpg>)
+![equipment page](<WhatsApp Image 2024-08-21 at 16.33.40_3a8dcb41.jpg>)
+![detail equipment page](<WhatsApp Image 2024-08-21 at 16.33.40_b047f807.jpg>)
